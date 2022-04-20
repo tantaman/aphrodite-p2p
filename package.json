@@ -1,0 +1,19 @@
+{
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@6.32.0",
+  "engines": {
+    "node": ">=16",
+    "pnpm": ">=6"
+  },
+  "devDependencies": {
+    "@tsconfig/node16": "^1.0.2",
+    "turbo": "^1.1.1"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "todos": "leasot '**/*.ts' --ignore '**/node_modules'",
+    "preinstall": "npx only-allow pnpm"
+  }
+}

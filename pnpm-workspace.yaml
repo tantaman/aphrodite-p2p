@@ -1,0 +1,4 @@
+packages:
+  - "packages/model"
+  - "packages/mutator"
+  - "packages/persistor"
