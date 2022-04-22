@@ -1,12 +1,17 @@
+import { Context } from "context";
 import { ID_of } from "ID";
-import { ViewerContext } from "ViewerContext";
 
-export default abstract class Model<T extends { id: ID_of<any /*this*/> }> {
-  protected readonly data: T;
-  protected readonly vc: ViewerContext;
+export default abstract class Model<
+  T extends {
+    id: ID_of<any /*this*/>;
+  }
+> {
+  protected data: T;
+  protected readonly context: Context;
 
-  constructor(vc: ViewerContext, data: T) {
+  constructor(context: Context, data: T) {
     this.data = Object.seal(data);
+    this.context = context;
   }
 
   get id(): ID_of<this> {

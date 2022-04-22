@@ -3,3 +3,4 @@ lib/
 bin/
 dist/
 .pnpm-debug.log
+tsconfig.tsbuildinfo
