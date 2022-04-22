@@ -1,8 +1,16 @@
 import { DefineNode, NodeSchema, SchemaFieldType } from "Schema";
 
-/*
+const SlideDefinition = {
+  storage: {
+    replicated: true,
+    persisted: true,
+  },
+  fields: {
+    name: "string",
+    content: "replicatedString",
+  },
+} as const;
 
-*/
 const DeckDefinition = {
   storage: {
     replicated: true,
@@ -11,7 +19,22 @@ const DeckDefinition = {
   fields: {
     name: "string",
   },
-  // of course edges...
 } as const;
 
-const Deck = DefineNode(DeckDefinition);
+const DeckEdges = {
+  slides: {
+    type: "foreign",
+    field: "deckId",
+    dest: SlideDefinition,
+  },
+} as const;
+
+const SlideEdges = {
+  deck: {
+    type: "field",
+    field: "deckId",
+    dest: DeckDefinition,
+  },
+} as const;
+
+const Deck = DefineNode(DeckDefinition, DeckEdges);
