@@ -2,3 +2,4 @@ packages:
   - "packages/model"
   - "packages/mutator"
   - "packages/persistor"
+  - "packages/error"

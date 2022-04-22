@@ -1,8 +1,10 @@
+import { ID_of } from "ID";
+import { Doc } from "Node";
 import { Root } from "root";
 import { Viewer } from "viewer";
 import * as Y from "yjs";
 
-type DocProvider = () => Y.Doc;
+type DocProvider = (parent: ID_of<Doc<any>> | null) => Y.Doc;
 
 export type Context = {
   readonly viewer: Viewer;
@@ -10,15 +12,23 @@ export type Context = {
   readonly doc: DocProvider;
 };
 
-export default function context(
-  viewer: Viewer,
-  root: Root,
-  docProvider?: DocProvider
-): Context {
-  let doc = docProvider || (() => root.doc);
+export default function context(viewer: Viewer, root: Root): Context {
   return {
     viewer,
     root,
-    doc,
+    doc: (parent) => {
+      if (parent == null) {
+        return root.doc;
+      }
+
+      const subDocs = root.subDocs;
+      let subDoc = subDocs.get(parent);
+      if (subDoc == null) {
+        subDoc = new Y.Doc();
+        subDocs.set(parent, subDoc);
+      }
+
+      return subDoc;
+    },
   };
 }

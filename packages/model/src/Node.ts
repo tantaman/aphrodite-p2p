@@ -1,8 +1,20 @@
 import { Context } from "context";
-import createContext from "context";
 import { FieldType } from "field";
 import { ID_of } from "ID";
 import * as Y from "yjs";
+import { invariant } from "@aphro/lf-error";
+
+/*
+Persisted only
+Synced only
+Persisted & Synced
+Not persisted or synced (ephemeral)
+*/
+
+// All just nodes but change based on storage adapter?
+// interface PersistedNode {}
+// interface ReplicatedNode {}
+// interface Node {}
 
 // We do need a schema for the model so we know what
 // to create within our map... right?
@@ -11,36 +23,57 @@ import * as Y from "yjs";
 // some data originally.
 // Not from some Y data...
 // From some off-disk data.
-export abstract class Node<
+//
+// Mutators will change `y` as well?
+// Probs all changes should go thru y
+// and then be synced into the model
+// which is then synced into storage
+export abstract class ReplicatedNode<
   T extends {
-    id: ID_of<any /*this*/>;
+    _id: ID_of<any /*this*/>;
+    _parentDoc: ID_of<Doc<any>> | null;
     [key: string]: FieldType;
   }
 > {
-  private y: Y.Map<T[keyof T]>;
+  private ymap: Y.Map<FieldType>;
+  private ydoc: Y.Doc;
   protected data: T;
   protected readonly context: Context;
 
   constructor(context: Context, data: T) {
     this.context = context;
-    this.y = context.doc().getMap(data.id);
+    this.ydoc = context.doc(data._parentDoc);
+    this.ymap = this.ydoc.getMap(data._id);
     this.data = data;
 
-    // Now fill y from data.
-    // in 1 single transaction?
-    // can we "hydrate" y ?? / initialize it...
+    // TODO: we need access to the schema to know
+    // if any of these sub-types are replicated types (e.g., maps)
+    this.ydoc.transact((tx) => {
+      Object.entries(this.data).forEach(([key, value]) => {
+        this.ymap.set(key, value);
+      });
+    });
 
-    // Y is our sync transport.
-    // We'll observer it and merge its changes into `data`
+    this.ymap.observe(this.yObserver);
   }
 
   get id(): ID_of<this> {
-    return this.data.id;
+    return this.data._id;
   }
 
   _d(): T {
     return this.data;
   }
+
+  destroy() {}
+
+  // If we have a replicated string sub-entry...
+  // will this process that correctly?
+  // or we need to deeply observe?
+  private yObserver = (event: Y.YMapEvent<FieldType>) => {
+    const newData = { ...this.data };
+    console.log(event);
+  };
 }
 
 // TODO:
@@ -52,25 +85,15 @@ export abstract class Node<
  */
 export abstract class Doc<
   T extends {
-    id: ID_of<any /*this*/>;
+    _id: ID_of<any /*this*/>;
+    _parentDoc: ID_of<any /*this*/>;
     [key: string]: FieldType;
   }
-> extends Node<T> {
+> extends ReplicatedNode<T> {
   // This'll create a new doc which is put into the root doc via id.
   constructor(context: Context, data: T) {
-    super(
-      createContext(context.viewer, context.root, () => {
-        const subDocs = context.root.subDocs;
-        let myDoc = subDocs.get(data.id);
-        if (myDoc == null) {
-          myDoc = new Y.Doc();
-          subDocs.set(data.id, myDoc);
-        }
-
-        return myDoc;
-      }),
-      data
-    );
+    invariant(data._id === data._parentDoc, "Docs must be their own parents.");
+    super(context, data);
   }
 }
 

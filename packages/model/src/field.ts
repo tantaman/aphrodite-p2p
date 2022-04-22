@@ -2,7 +2,7 @@ import { ID_of } from "ID";
 
 export type FieldType = SimpleField | CompositeField;
 
-type SimpleField = number | string | boolean | ID_of<any>;
+type SimpleField = number | string | boolean | ID_of<any> | null;
 
 // TODO: enforce read-only-ness of these structs?
 // Or use Immutablejs versions?
