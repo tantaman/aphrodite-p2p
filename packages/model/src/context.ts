@@ -1,5 +1,5 @@
-import { Viewer } from "viewer";
 import { Domain } from "domain";
+import { Viewer } from "viewer";
 
 export type Context = {
   readonly viewer: Viewer;
