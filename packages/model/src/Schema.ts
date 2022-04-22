@@ -40,13 +40,20 @@ export type NodeSchemaEdges = {
 };
 
 type Querify<T extends string> = `query${Capitalize<T>}`;
+type Filterify<T extends string> = `where${Capitalize<T>}`;
 
-type NodeInstanceType<T extends NodeSchema> = {
+type NodeInstanceType<T extends NodeSchema, E extends NodeSchemaEdges> = {
   readonly [key in keyof T["fields"]]: T["fields"][key];
 } & {
-  readonly [key in keyof T["edges"] as Querify<
+  readonly [key in keyof E as Querify<
     key extends string ? key : never
-  >]: string; //QueryInstanceType<T["edges"][key]>;
+  >]: () => QueryInstanceType<E[key]["dest"]>;
+};
+
+type QueryInstanceType<T extends NodeSchema> = {
+  readonly [key in keyof T["fields"] as Filterify<
+    key extends string ? key : never
+  >]: () => QueryInstanceType<T>;
 };
 
 // And can we map the type to generate a typed instance...
@@ -55,4 +62,4 @@ type NodeInstanceType<T extends NodeSchema> = {
 export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
   def: T,
   edges: E
-): NodeInstanceType<T> {}
+): NodeInstanceType<T, E> {}
