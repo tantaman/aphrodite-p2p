@@ -32,7 +32,6 @@ export abstract class ReplicatedNode<
   T extends {
     _id: ID_of<any /*this*/>;
     _parentDoc: ID_of<Doc<any>> | null;
-    [key: string]: FieldType;
   }
 > {
   private ymap: Y.Map<FieldType>;
@@ -50,6 +49,9 @@ export abstract class ReplicatedNode<
     // if any of these sub-types are replicated types (e.g., maps)
     this.ydoc.transact((tx) => {
       Object.entries(this.data).forEach(([key, value]) => {
+        if (key === "_id" || key === "_parentDoc") {
+          return;
+        }
         this.ymap.set(key, value);
       });
     });

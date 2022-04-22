@@ -2,8 +2,9 @@
 // 1. Root
 // 2. ID_of<Doc subclass>
 
+import { Context } from "context";
 import { ID_of } from "ID";
-import * as Y from "yjs";
+import { Doc, ReplicatedNode } from "Node";
 
 export function stringField(): string {
   throw new Error();
@@ -11,7 +12,7 @@ export function stringField(): string {
 export function numberField(): number {
   throw new Error();
 }
-export function replicatedStringField(): Y.Text {
+export function replicatedStringField(): string {
   throw new Error();
 }
 export function booleanField(): boolean {
@@ -91,7 +92,10 @@ type QueryInstanceType<
 } & Query<N>;
 
 type NodeInternalDataType<T extends NodeSchema> = {
-  // readonly [key in keyof T["fields"]]:
+  readonly [key in keyof T["fields"]]: ReturnType<T["fields"][key]>;
+} & {
+  _id: ID_of<any>;
+  _parentDoc: ID_of<Doc<any>> | null;
 };
 
 interface Query<T> {
@@ -109,13 +113,28 @@ export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
     node: T;
     edges: E;
   };
-  createFromData: () => NodeInstanceType<T, E>;
+  createFromData: (
+    context: Context,
+    data: NodeInternalDataType<T>
+  ) => NodeInstanceType<T, E>;
 } {
+  class ConcreteNode extends ReplicatedNode<NodeInternalDataType<T>> {}
+
+  Object.entries(node.fields).forEach(([key, value]) => {
+    Object.defineProperty(ConcreteNode.prototype, key, {
+      get: () => this.data[key],
+    });
+  });
+
   return {
     schema: {
       node,
       edges,
     },
-    createFromData: () => {},
+
+    // @ts-ignore
+    createFromData: (context: Context, data) => {
+      return new ConcreteNode(context, data);
+    },
   };
 }

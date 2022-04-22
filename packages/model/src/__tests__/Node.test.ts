@@ -1,4 +1,8 @@
 import { DefineNode, replicatedStringField, stringField } from "Schema";
+import createContext from "context";
+import { Viewer, viewer } from "viewer";
+import root from "root";
+import { ID_of } from "ID";
 
 const SlideDefinition = {
   storage: {
@@ -38,5 +42,11 @@ const SlideEdges = {
 } as const;
 
 const Deck = DefineNode(DeckDefinition, DeckEdges);
-const d = Deck.createFromData();
+
+const context = createContext(viewer(1 as any), root());
+const d = Deck.createFromData(context, {
+  _id: "sdf" as any,
+  _parentDoc: null,
+  name: "Test",
+});
 const a = d.name;
