@@ -16,21 +16,30 @@ export abstract class Node<
     [key: string]: FieldType;
   }
 > {
-  protected data: Y.Map<T[keyof T]>;
+  private y: Y.Map<T[keyof T]>;
+  protected data: T;
   protected readonly context: Context;
 
   constructor(context: Context, data: T) {
     this.context = context;
     // If we traverse an edge to a model that exists in a different domain
     // how do we handle that?
-    this.data = context.domain.doc.getMap(this.constructor.name);
+    this.y = context.domain.doc.getMap(this.constructor.name);
+    this.data = data;
+
+    // Now fill y from data.
+    // in 1 single transaction?
+    // can we "hydrate" y ?? / initialize it...
+
+    // Y is our sync transport.
+    // We'll observer it and merge its changes into `data`
   }
 
   get id(): ID_of<this> {
-    return this.data.get("id") as ID_of<this>;
+    return this.data.id;
   }
 
-  _d(): Y.Map<T[keyof T]> {
+  _d(): T {
     return this.data;
   }
 }
