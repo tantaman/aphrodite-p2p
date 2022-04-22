@@ -1,4 +1,5 @@
 import { Context } from "context";
+import createContext from "context";
 import { FieldType } from "field";
 import { ID_of } from "ID";
 import * as Y from "yjs";
@@ -22,9 +23,7 @@ export abstract class Node<
 
   constructor(context: Context, data: T) {
     this.context = context;
-    // If we traverse an edge to a model that exists in a different domain
-    // how do we handle that?
-    this.y = context.domain.doc.getMap(this.constructor.name);
+    this.y = context.doc().getMap(data.id);
     this.data = data;
 
     // Now fill y from data.
@@ -44,6 +43,13 @@ export abstract class Node<
   }
 }
 
+// TODO:
+// export abstract class OnePerSessionNode?
+// OncePerSession being to handle things like AppState for the local person.
+
+/**
+ * A Doc is a Node that handles it own replication.
+ */
 export abstract class Doc<
   T extends {
     id: ID_of<any /*this*/>;
@@ -51,6 +57,21 @@ export abstract class Doc<
   }
 > extends Node<T> {
   // This'll create a new doc which is put into the root doc via id.
+  constructor(context: Context, data: T) {
+    super(
+      createContext(context.viewer, context.root, () => {
+        const subDocs = context.root.subDocs;
+        let myDoc = subDocs.get(data.id);
+        if (myDoc == null) {
+          myDoc = new Y.Doc();
+          subDocs.set(data.id, myDoc);
+        }
+
+        return myDoc;
+      }),
+      data
+    );
+  }
 }
 
 /**
@@ -94,4 +115,35 @@ export abstract class Doc<
  * when you come back? :|
  *
  * Maybe there's a way to disconnect a specific model from remote updates?
+ *
+ * What if a sub-doc has sub-nodes?
+ * Edges must take in a Doc then...
+ * Do validation to see if the same GUID/Model ends up in multiple docs?
+ *
+ * Travsering and edge to a node...
+ * Can two different docs have edges to the same node?
+ * If we forbit it then we can easily forward the Doc's context...
+ *
+ * What if we're trying to load the node by ID?
+ * It surely always needs to know its parent context...
+ *
+ * OK OK! Nodes will save
+ * 1. Their ID
+ * 2. Their parent doc id
+ *
+ * If a node is loaded and parent doc is missing
+ * We'll load the parent doc too.
+ * Or we'll throw?
+ *
+ * This can almost be encoded as a privacy type rule...
+ * / data validation rule.
+ *
+ * Node load checks provided context against saved doc id.
+ *
+ * A doc is basically a table...
+ * Sort of though. Not all `components` would be in the same doc, for example.
+ *
+ * So docs _can't_ be statically encoded.
+ * But can we got some write time validation that the thinger
+ * was placed into a doc?
  */
