@@ -10,7 +10,7 @@ import * as Y from "yjs";
 // some data originally.
 // Not from some Y data...
 // From some off-disk data.
-export abstract class Model<
+export abstract class Node<
   T extends {
     id: ID_of<any /*this*/>;
     [key: string]: FieldType;
@@ -40,7 +40,7 @@ export abstract class Doc<
     id: ID_of<any /*this*/>;
     [key: string]: FieldType;
   }
-> extends Model<T> {
+> extends Node<T> {
   // This'll create a new doc which is put into the root doc via id.
 }
 
