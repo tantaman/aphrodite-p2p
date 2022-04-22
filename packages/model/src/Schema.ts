@@ -2,16 +2,47 @@
 // 1. Root
 // 2. ID_of<Doc subclass>
 
+import { ID_of } from "ID";
+import * as Y from "yjs";
+
+export function stringField(): string {
+  throw new Error();
+}
+export function numberField(): number {
+  throw new Error();
+}
+export function replicatedStringField(): Y.Text {
+  throw new Error();
+}
+export function booleanField(): boolean {
+  throw new Error();
+}
+export function arrayField(): readonly any[] {
+  throw new Error();
+}
+export function idField(): ID_of<any> {
+  throw new Error();
+}
+export function objectField(): Object {
+  throw new Error();
+}
+export function setField(): Set<any> {
+  throw new Error();
+}
+export function mapField(): Map<any, any> {
+  throw new Error();
+}
+
 export type SchemaFieldType =
-  | "string"
-  | "replicatedString"
-  | "number"
-  | "boolean"
-  | "array"
-  | "id"
-  | "object"
-  | "set"
-  | "map";
+  | typeof stringField
+  | typeof replicatedStringField
+  | typeof numberField
+  | typeof booleanField
+  | typeof arrayField
+  | typeof idField
+  | typeof objectField
+  | typeof setField
+  | typeof mapField;
 
 type Edge<TDest extends NodeSchema> = FieldEdge<TDest> | ForeignKeyEdge<TDest>;
 type FieldEdge<TDest extends NodeSchema> = {
@@ -43,23 +74,48 @@ type Querify<T extends string> = `query${Capitalize<T>}`;
 type Filterify<T extends string> = `where${Capitalize<T>}`;
 
 type NodeInstanceType<T extends NodeSchema, E extends NodeSchemaEdges> = {
-  readonly [key in keyof T["fields"]]: T["fields"][key];
+  readonly [key in keyof T["fields"]]: ReturnType<T["fields"][key]>;
 } & {
   readonly [key in keyof E as Querify<
     key extends string ? key : never
-  >]: () => QueryInstanceType<E[key]["dest"]>;
+  >]: () => QueryInstanceType<E[key]["dest"], NodeInstanceType<T, E>>;
 };
 
-type QueryInstanceType<T extends NodeSchema> = {
+type QueryInstanceType<
+  T extends NodeSchema,
+  N extends NodeInstanceType<any, any>
+> = {
   readonly [key in keyof T["fields"] as Filterify<
     key extends string ? key : never
-  >]: () => QueryInstanceType<T>;
+  >]: () => QueryInstanceType<T, N>;
+} & Query<N>;
+
+type NodeInternalDataType<T extends NodeSchema> = {
+  // readonly [key in keyof T["fields"]]:
 };
+
+interface Query<T> {
+  gen(): Promise<T[]>;
+}
 
 // And can we map the type to generate a typed instance...
 // e.g., queryEdge
 // getField
 export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
-  def: T,
+  node: T,
   edges: E
-): NodeInstanceType<T, E> {}
+): {
+  schema: {
+    node: T;
+    edges: E;
+  };
+  createFromData: () => NodeInstanceType<T, E>;
+} {
+  return {
+    schema: {
+      node,
+      edges,
+    },
+    createFromData: () => {},
+  };
+}

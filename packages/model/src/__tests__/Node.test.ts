@@ -1,4 +1,4 @@
-import { DefineNode, NodeSchema, SchemaFieldType } from "Schema";
+import { DefineNode, replicatedStringField, stringField } from "Schema";
 
 const SlideDefinition = {
   storage: {
@@ -6,8 +6,8 @@ const SlideDefinition = {
     persisted: true,
   },
   fields: {
-    name: "string",
-    content: "replicatedString",
+    name: stringField,
+    content: replicatedStringField,
   },
 } as const;
 
@@ -17,7 +17,7 @@ const DeckDefinition = {
     persisted: true,
   },
   fields: {
-    name: "string",
+    name: stringField,
   },
 } as const;
 
@@ -38,3 +38,5 @@ const SlideEdges = {
 } as const;
 
 const Deck = DefineNode(DeckDefinition, DeckEdges);
+const d = Deck.createFromData();
+const a = d.name;
