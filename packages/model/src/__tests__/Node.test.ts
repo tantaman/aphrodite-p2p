@@ -1,8 +1,7 @@
-import { DefineNode, replicatedStringField, stringField } from "Schema";
-import createContext from "context";
-import { Viewer, viewer } from "viewer";
-import root from "root";
-import { ID_of } from "ID";
+import { DefineNode, replicatedStringField, stringField } from "../Schema";
+import createContext from "../context";
+import { viewer } from "../viewer";
+import root from "../root";
 
 const SlideDefinition = {
   storage: {
@@ -42,11 +41,36 @@ const SlideEdges = {
 } as const;
 
 const Deck = DefineNode(DeckDefinition, DeckEdges);
-
 const context = createContext(viewer(1 as any), root());
-const d = Deck.createFromData(context, {
-  _id: "sdf" as any,
-  _parentDoc: null,
-  name: "Test",
+
+test("creating a node", () => {
+  const deck = Deck.createFromData(context, {
+    _id: "sdf" as any,
+    _parentDoc: null,
+    name: "Test",
+  });
+  expect(deck).toBeTruthy();
 });
-const a = d.name;
+
+test("Read fields on the created node", () => {
+  const deck = Deck.createFromData(context, {
+    _id: "sdf" as any,
+    _parentDoc: null,
+    name: "Test",
+  });
+  expect(deck.name).toEqual("Test");
+});
+
+/*
+Mutator...
+*/
+
+// test("Query methods", () => {
+//   const deck = Deck.createFromData(context, {
+//     _id: "sdf" as any,
+//     _parentDoc: null,
+//     name: "Test",
+//   });
+
+//   const query = deck.querySlides();
+// });

@@ -1,7 +1,7 @@
-import { ID_of } from "ID";
-import { Doc } from "Node";
-import { Root } from "root";
-import { Viewer } from "viewer";
+import { ID_of } from "./ID";
+import { Doc } from "./Node";
+import { Root } from "./root";
+import { Viewer } from "./viewer";
 import * as Y from "yjs";
 
 type DocProvider = (parent: ID_of<Doc<any>> | null) => Y.Doc;

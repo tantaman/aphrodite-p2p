@@ -1,4 +1,4 @@
-import { ID_of } from "ID";
+import { ID_of } from "./ID";
 
 export type FieldType = SimpleField | CompositeField;
 

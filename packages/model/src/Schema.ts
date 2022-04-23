@@ -2,9 +2,9 @@
 // 1. Root
 // 2. ID_of<Doc subclass>
 
-import { Context } from "context";
-import { ID_of } from "ID";
-import { Doc, ReplicatedNode } from "Node";
+import { Context } from "./context";
+import { ID_of } from "./ID";
+import { Doc, ReplicatedNode } from "./Node";
 
 export function stringField(): string {
   throw new Error();
@@ -91,7 +91,7 @@ type QueryInstanceType<
   >]: () => QueryInstanceType<T, N>;
 } & Query<N>;
 
-type NodeInternalDataType<T extends NodeSchema> = {
+export type NodeInternalDataType<T extends NodeSchema> = {
   readonly [key in keyof T["fields"]]: ReturnType<T["fields"][key]>;
 } & {
   _id: ID_of<any>;
@@ -102,13 +102,7 @@ interface Query<T> {
   gen(): Promise<T[]>;
 }
 
-// And can we map the type to generate a typed instance...
-// e.g., queryEdge
-// getField
-export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
-  node: T,
-  edges: E
-): {
+export type NodeDefinition<T extends NodeSchema, E extends NodeSchemaEdges> = {
   schema: {
     node: T;
     edges: E;
@@ -117,12 +111,22 @@ export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
     context: Context,
     data: NodeInternalDataType<T>
   ) => NodeInstanceType<T, E>;
-} {
+};
+
+// And can we map the type to generate a typed instance...
+// e.g., queryEdge
+// getField
+export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
+  node: T,
+  edges: E
+): NodeDefinition<T, E> {
   class ConcreteNode extends ReplicatedNode<NodeInternalDataType<T>> {}
 
   Object.entries(node.fields).forEach(([key, value]) => {
     Object.defineProperty(ConcreteNode.prototype, key, {
-      get: () => this.data[key],
+      get() {
+        return this.data[key];
+      },
     });
   });
 

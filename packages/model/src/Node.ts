@@ -1,6 +1,6 @@
-import { Context } from "context";
-import { FieldType } from "field";
-import { ID_of } from "ID";
+import { Context } from "./context";
+import { FieldType } from "./field";
+import { ID_of } from "./ID";
 import * as Y from "yjs";
 import { invariant } from "@aphro/lf-error";
 
@@ -10,6 +10,8 @@ Synced only
 Persisted & Synced
 Not persisted or synced (ephemeral)
 */
+
+export interface Node<T extends Object> {}
 
 // All just nodes but change based on storage adapter?
 // interface PersistedNode {}
@@ -33,7 +35,8 @@ export abstract class ReplicatedNode<
     _id: ID_of<any /*this*/>;
     _parentDoc: ID_of<Doc<any>> | null;
   }
-> {
+> implements Node<T>
+{
   private ymap: Y.Map<FieldType>;
   private ydoc: Y.Doc;
   protected data: T;
@@ -67,14 +70,17 @@ export abstract class ReplicatedNode<
     return this.data;
   }
 
-  destroy() {}
+  destroy() {
+    this.ymap.unobserve(this.yObserver);
+  }
 
   // If we have a replicated string sub-entry...
   // will this process that correctly?
   // or we need to deeply observe?
   private yObserver = (event: Y.YMapEvent<FieldType>) => {
     const newData = { ...this.data };
-    console.log(event);
+    // console.log(event);
+    // compare to see if we should set
   };
 }
 
