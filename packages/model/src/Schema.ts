@@ -74,7 +74,10 @@ export type NodeSchemaEdges = {
 type Querify<T extends string> = `query${Capitalize<T>}`;
 type Filterify<T extends string> = `where${Capitalize<T>}`;
 
-type NodeInstanceType<T extends NodeSchema, E extends NodeSchemaEdges> = {
+export type NodeInstanceType<
+  T extends NodeSchema,
+  E extends NodeSchemaEdges
+> = {
   readonly [key in keyof T["fields"]]: ReturnType<T["fields"][key]>;
 } & {
   readonly [key in keyof E as Querify<
@@ -91,12 +94,14 @@ type QueryInstanceType<
   >]: () => QueryInstanceType<T, N>;
 } & Query<N>;
 
-export type NodeInternalDataType<T extends NodeSchema> = {
-  readonly [key in keyof T["fields"]]: ReturnType<T["fields"][key]>;
-} & {
+export type RequiredNodeData = {
   _id: ID_of<any>;
   _parentDoc: ID_of<Doc<any>> | null;
 };
+
+export type NodeInternalDataType<T extends NodeSchema> = {
+  readonly [key in keyof T["fields"]]: ReturnType<T["fields"][key]>;
+} & RequiredNodeData;
 
 interface Query<T> {
   gen(): Promise<T[]>;
@@ -120,7 +125,12 @@ export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
   node: T,
   edges: E
 ): NodeDefinition<T, E> {
-  class ConcreteNode extends ReplicatedNode<NodeInternalDataType<T>> {}
+  let definition: NodeDefinition<T, E>;
+  class ConcreteNode extends ReplicatedNode<NodeInternalDataType<T>> {
+    readonly _internal = {
+      definition,
+    } as const;
+  }
 
   Object.entries(node.fields).forEach(([key, value]) => {
     Object.defineProperty(ConcreteNode.prototype, key, {
@@ -130,7 +140,7 @@ export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
     });
   });
 
-  return {
+  definition = {
     schema: {
       node,
       edges,
@@ -141,4 +151,6 @@ export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
       return new ConcreteNode(context, data);
     },
   };
+
+  return definition;
 }
