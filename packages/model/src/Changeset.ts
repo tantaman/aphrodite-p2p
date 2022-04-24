@@ -4,8 +4,7 @@ import {
   NodeInternalDataType,
   NodeSchema,
   NodeSchemaEdges,
-  RequiredNodeData,
-} from "Schema";
+} from "./Schema";
 import { Node } from "./Node";
 
 export type Changeset<N extends NodeSchema, E extends NodeSchemaEdges> =

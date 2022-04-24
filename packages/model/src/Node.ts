@@ -11,7 +11,7 @@ Persisted & Synced
 Not persisted or synced (ephemeral)
 */
 
-export interface Node<T extends Object> {}
+export interface Node {}
 
 // All just nodes but change based on storage adapter?
 // interface PersistedNode {}
@@ -35,7 +35,7 @@ export abstract class ReplicatedNode<
     _id: ID_of<any /*this*/>;
     _parentDoc: ID_of<Doc<any>> | null;
   }
-> implements Node<T>
+> implements Node
 {
   private ymap: Y.Map<FieldType>;
   private ydoc: Y.Doc;

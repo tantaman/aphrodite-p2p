@@ -3,14 +3,14 @@ import {
   CreateChangeset,
   DeleteChangeset,
   UpdateChangeset,
-} from "Changeset";
+} from "./Changeset";
 import {
   NodeDefinition,
   NodeInstanceType,
   NodeInternalDataType,
   NodeSchema,
   NodeSchemaEdges,
-} from "Schema";
+} from "./Schema";
 
 // Validation should be applied in mutators?
 // Well field level validation, yes
