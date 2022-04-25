@@ -14,6 +14,7 @@ import {
   NodeSchemaEdges,
   RequiredNodeData,
 } from "./Schema";
+import { ChangesetExecutor } from "changesetExecutor";
 
 // Validation should be applied in mutators?
 // Well field level validation, yes
@@ -61,6 +62,12 @@ abstract class CreateOrUpdateMutationBuilder<
   }
 
   abstract toChangeset(): UpdateChangeset<N, E> | CreateChangeset<N, E>;
+
+  save(): NodeInstanceType<N, E> {
+    return new ChangesetExecutor(this.context, [
+      this.toChangeset(),
+    ]).execute()[0] as NodeInstanceType<N, E>;
+  }
 }
 
 export class UpdateMutationBuilder<

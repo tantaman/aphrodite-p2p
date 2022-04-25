@@ -1,8 +1,10 @@
+import { Node } from "../Node";
 import createContext from "../context";
 import { ID_of } from "../ID";
 import root from "../root";
-import { DefineNode, stringField } from "../Schema";
+import { DefineNode, RequiredNodeData, stringField } from "../Schema";
 import { Viewer, viewer } from "../viewer";
+import { ChangesetExecutor } from "../ChangesetExecutor";
 
 const DeckSchema = {
   storage: {
@@ -27,6 +29,17 @@ test("create mutation builder changeset generation", () => {
   expect(changeset.updates.name).toEqual("foo");
 });
 
-test("update mutation builder", () => {});
+class TestNode implements Node<RequiredNodeData> {
+  _destroy(): void {}
+}
+
+test("update mutation builder", () => {
+  const Deck = DefineNode(DeckSchema, DeckEdges);
+  const deck = Deck.create(context).set({ name: "foo" }).save();
+  console.log(deck);
+
+  const updated = Deck.update(deck).set({ name: "bar" }).save();
+  console.log(updated);
+});
 
 test("delete mutation builder", () => {});

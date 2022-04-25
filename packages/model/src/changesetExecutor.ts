@@ -31,71 +31,49 @@ import { Node } from "./Node";
 import * as lodash from "lodash";
 import * as y from "yjs";
 
+export type YOrigin = {
+  nodes: Node<any>[];
+};
+
 export class ChangesetExecutor {
   constructor(
     private context: Context,
     private changesets: Changeset<any, any>[]
   ) {}
 
-  execute() {
+  // Ideally we return the transaction list...
+  // to replicate to logs.
+  execute(): Node<any>[] {
     // Merge multiple updates to the same object into a single changeset
-    const merged = this.mergeChangesets();
+    const merged = this._mergeChangesets();
     // this.removeNoops(merged);
-    this.apply(merged);
+    return this.apply(merged);
   }
 
-  private apply(changesets: Changeset<any, any>[]): [] {
+  private apply(changesets: Changeset<any, any>[]): Node<any>[] {
     // collect all that use the same doc
     const grouped = lodash.groupBy(changesets, (cs) => cs._parentDocId);
+    const origin: YOrigin = {
+      nodes: [],
+    };
     Object.entries(grouped).forEach(([parentDocId, changesets]) => {
       const doc = this.context.doc(parentDocId as ID_of<any>);
-      doc.transact(() => {
-        changesets.forEach((cs) => this.processChanges(doc, cs));
-      });
+      doc.transact((tx) => {
+        changesets.forEach((cs) => {
+          const result = this.processChanges(doc, cs);
+          if (result != null) {
+            tx.origin.nodes.push(result);
+          }
+        });
+      }, origin);
     });
 
     // Now the real question is how do we get the final transactions out
     // so we can push them onto our log?
     // given y will not notify observers synchronously
     // we need them in the log for persistence concerns.
-
-    return [];
+    return origin.nodes;
   }
-
-  // private apply(changesets: MergedChangesets): [Transaction, Set<Task>] {
-  //   // iterate changesets
-  //   // merge into each model
-  //   // get resulting notifications and prior states from model
-  //   // return
-
-  //   // TODO: we don't need to keep prior states
-  //   // since the transaction before us is the prior state. Well...
-  //   // the transaction before us that contains our model!
-  //   // Hard to find that.
-  //   const priorStates = new ModelMap<IModel<any>, Partial<any>>();
-  //   const notifications: Set<Task> = new Set();
-  //   for (const [model, changes] of changesets) {
-  //     const mergeResult = model._merge(changes);
-  //     if (mergeResult == null) {
-  //       // TODO: we need a test for this merge behavior!
-  //       // we need tests for all the things!
-  //       continue;
-  //     }
-  //     const [lastData, currentNotifications] = mergeResult;
-  //     for (const task of currentNotifications) {
-  //       notifications.add(task);
-  //     }
-  //     priorStates.set(model, lastData);
-  //   }
-
-  //   return [
-  //     {
-  //       priorStates,
-  //       changesets,
-  //     },
-  //     notifications,
-  //   ];
-  // }
 
   private processChanges(
     doc: y.Doc,
@@ -136,7 +114,7 @@ export class ChangesetExecutor {
     });
   }
 
-  private mergeChangesets(): Changeset<any, any>[] {
+  _mergeChangesets(): Changeset<any, any>[] {
     const merged: Map<ID_of<any>, Changeset<any, any>> = new Map();
     for (const changeset of this.changesets) {
       const existing = merged.get(changeset._id);
@@ -189,3 +167,38 @@ export class ChangesetExecutor {
   //   }
   // }
 }
+
+// private apply(changesets: MergedChangesets): [Transaction, Set<Task>] {
+//   // iterate changesets
+//   // merge into each model
+//   // get resulting notifications and prior states from model
+//   // return
+
+//   // TODO: we don't need to keep prior states
+//   // since the transaction before us is the prior state. Well...
+//   // the transaction before us that contains our model!
+//   // Hard to find that.
+//   const priorStates = new ModelMap<IModel<any>, Partial<any>>();
+//   const notifications: Set<Task> = new Set();
+//   for (const [model, changes] of changesets) {
+//     const mergeResult = model._merge(changes);
+//     if (mergeResult == null) {
+//       // TODO: we need a test for this merge behavior!
+//       // we need tests for all the things!
+//       continue;
+//     }
+//     const [lastData, currentNotifications] = mergeResult;
+//     for (const task of currentNotifications) {
+//       notifications.add(task);
+//     }
+//     priorStates.set(model, lastData);
+//   }
+
+//   return [
+//     {
+//       priorStates,
+//       changesets,
+//     },
+//     notifications,
+//   ];
+// }
