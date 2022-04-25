@@ -91,6 +91,8 @@ export type NodeInstanceType<
 } & {
   getContext(): Context;
   get _id(): ID_of<NodeInstanceType<T, E>>;
+  get _parentDocId(): ID_of<Doc<any>> | null;
+  _destroy();
 };
 
 type QueryInstanceType<

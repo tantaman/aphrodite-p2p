@@ -12,23 +12,23 @@ import { invariant } from "@aphro/lf-error";
 import { ID_of } from "./ID";
 import { Node } from "./Node";
 
-const cache = new Map<ID_of<any>, WeakRef<Node>>();
+const cache = new Map<ID_of<any>, WeakRef<Node<any>>>();
 
-function get<T extends Node>(id: ID_of<T>): T | null {
+function get<T extends Node<any>>(id: ID_of<T>): T | null {
   const ref = cache.get(id);
   if (ref == null) {
     return null;
   }
 
-  const thing = ref.deref;
+  const thing = ref.deref();
   if (thing == null) {
     return null;
   }
 
-  return thing as any;
+  return thing as T;
 }
 
-function set<T extends Node>(id: ID_of<T>, node: T): void {
+function set<T extends Node<any>>(id: ID_of<T>, node: T): void {
   const existing = get(id);
   invariant(
     existing == null,
@@ -37,6 +37,22 @@ function set<T extends Node>(id: ID_of<T>, node: T): void {
 
   const ref = new WeakRef(node);
   cache.set(id, ref);
+}
+
+function remove<T extends Node<any>>(id: ID_of<T>): T | null {
+  const ref = cache.get(id);
+  if (ref == null) {
+    return null;
+  }
+
+  cache.delete(id);
+
+  const thing = ref.deref();
+  if (thing == null) {
+    return null;
+  }
+
+  return thing as T;
 }
 
 // TODO: we can be smarter here if/when the cache becomes massive.
@@ -52,4 +68,5 @@ setInterval(() => {
 export default {
   get,
   set,
+  remove,
 };

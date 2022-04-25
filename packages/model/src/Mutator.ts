@@ -80,6 +80,7 @@ export class UpdateMutationBuilder<
       updates: this.updates,
       node: this.node,
       _id: this.node._id,
+      _parentDocId: this.node._parentDocId,
     };
   }
 }
@@ -122,6 +123,7 @@ export class DeleteMutationBuilder<
       type: "delete",
       node: this.node,
       _id: this.node._id,
+      _parentDocId: this.node._parentDocId,
     };
   }
 }

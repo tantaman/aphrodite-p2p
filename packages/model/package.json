@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@aphro/lf-error": "workspace:*",
+    "@types/lodash": "^4.14.182",
     "lodash": "^4.17.21",
     "nanoid": "^3.3.3",
     "yjs": "^13.5.34"

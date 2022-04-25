@@ -24,6 +24,7 @@ export type CreateChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
 export type UpdateChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
   type: "update";
   _id: ID_of<any>;
+  _parentDocId: ID_of<Doc<any>> | null;
   updates: Partial<NodeInternalDataType<N>>;
   node: NodeInstanceType<N, E>;
 };
@@ -31,5 +32,6 @@ export type UpdateChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
 export type DeleteChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
   type: "delete";
   _id: ID_of<any>;
+  _parentDocId: ID_of<Doc<any>> | null;
   node: NodeInstanceType<N, E> | null;
 };

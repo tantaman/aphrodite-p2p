@@ -17,7 +17,9 @@ Persisted & Synced
 Not persisted or synced (ephemeral)
 */
 
-export interface Node<T extends RequiredNodeData> {}
+export interface Node<T extends RequiredNodeData> {
+  _destroy(): void;
+}
 
 abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
   private subscriptions: Set<() => void> = new Set();
@@ -28,6 +30,11 @@ abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
   constructor(context: Context, data: T) {
     this.context = context;
     this.data = data;
+  }
+
+  _destroy() {
+    this.subscriptions = new Set();
+    this.keyedSubscriptions = new Map();
   }
 
   subscribe(c: () => void): Disposer {
@@ -140,19 +147,8 @@ export abstract class ReplicatedNode<
     super(context, data);
     this.ydoc = context.doc(data._parentDocId);
     this.ymap = this.ydoc.getMap(data._id);
-    this.data = data;
 
-    // TODO: we need access to the schema to know
-    // if any of these sub-types are replicated types (e.g., maps)
-    this.ydoc.transact((tx) => {
-      Object.entries(this.data).forEach(([key, value]) => {
-        if (key === "_id" || key === "_parentDoc") {
-          return;
-        }
-        this.ymap.set(key, value);
-      });
-    });
-
+    // TODO We should observe y weakly...
     this.ymap.observe(this.yObserver);
   }
 
@@ -164,8 +160,13 @@ export abstract class ReplicatedNode<
     return this.data;
   }
 
-  destroy() {
+  _destroy() {
+    super._destroy();
     this.ymap.unobserve(this.yObserver);
+    // @ts-ignore
+    this.ymap = null;
+    // @ts-ignore
+    this.ydoc = null;
   }
 
   // If we have a replicated string sub-entry...

@@ -1,29 +1,22 @@
 import { id } from "../ID";
 import cache from "../cache";
-import { DefineNode, stringField } from "Schema";
-import context from "context";
-import { viewer } from "viewer";
-import root from "root";
+import { DefineNode, RequiredNodeData, stringField } from "../Schema";
+import context from "../context";
+import { viewer } from "../viewer";
+import root from "../root";
+import { Node } from "../Node";
 
-const DeckDefinition = {
-  storage: {
-    replicated: true,
-    persisted: true,
-  },
-  fields: {
-    name: stringField,
-  },
-} as const;
-const DeckEdges = {};
-
-const ctx = context(viewer(id("me")), root());
-const Deck = DefineNode(DeckDefinition, DeckEdges);
-const node = Deck.create(ctx).set({ name: "Deck" }).toChangeset();
-
-// oh.. how do we save a nod :p
-
-// test("The cache lets me set things", () => {
-//   cache.set(id("sdf"), node);
-// });
-// test("The cahce lets me get things", () => {});
-// test("The cache evicts things", () => {});
+class TestNode implements Node<RequiredNodeData> {
+  _destroy(): void {}
+}
+test("The cache lets me set things", () => {
+  expect(() => cache.set(id<TestNode>("sdf"), new TestNode())).not.toThrow();
+});
+test("The cahce lets me get things", () => {
+  const toSet = new TestNode();
+  cache.set(id<TestNode>("xdf"), toSet);
+  const gotten = cache.get(id<TestNode>("xdf"));
+  expect(toSet).toBe(gotten);
+});
+test("The cache evicts things", () => {});
+test("The cache lets me remove things", () => {});

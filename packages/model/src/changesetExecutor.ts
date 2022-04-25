@@ -25,11 +25,11 @@
 
 import cache from "cache";
 import { Context } from "context";
-import { Changeset } from "./Changeset";
+import { Changeset, CreateChangeset, UpdateChangeset } from "./Changeset";
 import { ID_of } from "./ID";
 import { Node } from "./Node";
-
-type MergedChangesets = Map<ID_of<any>, Changeset<any, any>>;
+import * as lodash from "lodash";
+import * as y from "yjs";
 
 export class ChangesetExecutor {
   constructor(
@@ -41,11 +41,24 @@ export class ChangesetExecutor {
     // Merge multiple updates to the same object into a single changeset
     const merged = this.mergeChangesets();
     // this.removeNoops(merged);
-    // this.apply(merged);
+    this.apply(merged);
   }
 
-  private apply(changesets: MergedChangesets): [] {
+  private apply(changesets: Changeset<any, any>[]): [] {
     // collect all that use the same doc
+    const grouped = lodash.groupBy(changesets, (cs) => cs._parentDocId);
+    Object.entries(grouped).forEach(([parentDocId, changesets]) => {
+      const doc = this.context.doc(parentDocId as ID_of<any>);
+      doc.transact(() => {
+        changesets.forEach((cs) => this.processChanges(doc, cs));
+      });
+    });
+
+    // Now the real question is how do we get the final transactions out
+    // so we can push them onto our log?
+    // given y will not notify observers synchronously
+    // we need them in the log for persistence concerns.
+
     return [];
   }
 
@@ -84,9 +97,10 @@ export class ChangesetExecutor {
   //   ];
   // }
 
-  private processChanges(changeset: Changeset<any, any>): Node<any> {
-    // We need a wholistic view of all changesets so we can
-    // group them all into a single Y transaction.
+  private processChanges(
+    doc: y.Doc,
+    changeset: Changeset<any, any>
+  ): Node<any> | null {
     switch (changeset.type) {
       case "create":
         const ret = changeset.definition._createFromData(
@@ -94,30 +108,36 @@ export class ChangesetExecutor {
           changeset.updates as any
         );
         cache.set(ret._id, ret);
+        this.updateY(doc, changeset);
         return ret;
       case "update":
-      // get the yjs doc and map from context?
-      // update it?
-      // or have the model do it?
-      // based on the node definition we can decide
-      // a. yjs route
-      // b. merge into node directly
+        this.updateY(doc, changeset);
+        return changeset.node;
       case "delete":
+        const removed = cache.remove(changeset._id);
+        const node = changeset.node || removed;
+        node.destory();
+        return null;
     }
-
-    // We'll grab the models
-    // And commit our changes to them.
-    // Then send out log events
-    // Can we do the latter though?
-    // Will yjs synchronously call us back?
-
-    // Where should we grab models from?
-    // Well changesets are always local...
-    // And what if new models arrive in the yjs map?
   }
 
-  private mergeChangesets(): MergedChangesets {
-    const merged: MergedChangesets = new Map();
+  private updateY(
+    doc: y.Doc,
+    changeset: CreateChangeset<any, any> | UpdateChangeset<any, any>
+  ) {
+    const ymap = doc.getMap(changeset._id);
+    // TODO: we need access to the schema to know
+    // if any of these sub-types are replicated types (e.g., maps)
+    Object.entries(changeset.updates).forEach(([key, value]) => {
+      if (key === "_id" || key === "_parentDoc") {
+        return;
+      }
+      ymap.set(key, value);
+    });
+  }
+
+  private mergeChangesets(): Changeset<any, any>[] {
+    const merged: Map<ID_of<any>, Changeset<any, any>> = new Map();
     for (const changeset of this.changesets) {
       const existing = merged.get(changeset._id);
 
@@ -152,11 +172,12 @@ export class ChangesetExecutor {
           ...changeset.updates,
         },
         node: changeset.node,
-        _id: changeset.node._id,
+        _id: changeset._id,
+        _parentDocId: changeset._parentDocId,
       });
     }
 
-    return merged;
+    return [...merged.values()];
   }
 
   // Maybe we should also ignore changesets that don't actually change anything?
