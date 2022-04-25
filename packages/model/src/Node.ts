@@ -4,6 +4,8 @@ import { ID_of } from "./ID";
 import * as Y from "yjs";
 import { invariant } from "@aphro/lf-error";
 import { RequiredNodeData } from "./Schema";
+import { YOrigin } from "ChangesetExecutor";
+import { CreateChangeset, UpdateChangeset } from "Changeset";
 type Disposer = () => void;
 function typedKeys<T>(o: T): (keyof T)[] {
   // @ts-ignore
@@ -19,17 +21,22 @@ Not persisted or synced (ephemeral)
 
 export interface Node<T extends RequiredNodeData> {
   _destroy(): void;
+  getContext(): Context;
 }
 
 abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
   private subscriptions: Set<() => void> = new Set();
   private keyedSubscriptions: Map<keyof T, Set<() => void>> = new Map();
-  protected data: T;
-  protected readonly context: Context;
+  protected _data: T;
+  protected readonly _context: Context;
 
   constructor(context: Context, data: T) {
-    this.context = context;
-    this.data = data;
+    this._context = context;
+    this._data = data;
+  }
+
+  getContext(): Context {
+    return this._context;
   }
 
   _destroy() {
@@ -56,17 +63,12 @@ abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
     return () => keys.forEach((k) => this.keyedSubscriptions.get(k)?.delete(c));
   }
 
-  _update(newData: Partial<T>) {
-    // replicated models go thru y
-    // non-replicated go straight to merge
-  }
-
   protected merge(
     newData: Partial<T> | undefined
   ): [Partial<T>, Set<() => void>] | null {
-    const lastData = this.data;
-    this.data = {
-      ...this.data,
+    const lastData = this._data;
+    this._data = {
+      ...this._data,
       ...newData,
     };
     let castLast = lastData as any;
@@ -149,20 +151,33 @@ export abstract class ReplicatedNode<
     this.ymap = this.ydoc.getMap(data._id);
 
     // TODO We should observe y weakly...
-    this.ymap.observe(this.yObserver);
+    this.ymap.observeDeep(this.yObserver);
   }
 
-  get id(): ID_of<this> {
-    return this.data._id;
+  get _id(): ID_of<this> {
+    return this._data._id;
+  }
+
+  get _parentDocId(): ID_of<Doc<any>> | null {
+    return this._data._parentDocId;
   }
 
   _d(): T {
-    return this.data;
+    return this._data;
+  }
+
+  _update(changeset: CreateChangeset<any, any> | UpdateChangeset<any, any>) {
+    Object.entries(changeset.updates).forEach(([key, value]) => {
+      if (key === "_id" || key === "_parentDoc") {
+        return;
+      }
+      this.ymap.set(key, value);
+    });
   }
 
   _destroy() {
     super._destroy();
-    this.ymap.unobserve(this.yObserver);
+    this.ymap.unobserveDeep(this.yObserver);
     // @ts-ignore
     this.ymap = null;
     // @ts-ignore
@@ -172,10 +187,34 @@ export abstract class ReplicatedNode<
   // If we have a replicated string sub-entry...
   // will this process that correctly?
   // or we need to deeply observe?
-  private yObserver = (event: Y.YMapEvent<FieldType>) => {
-    const newData = { ...this.data };
-    // console.log(event);
+  private yObserver = (events: Y.YEvent<any>[], tx: Y.Transaction) => {
+    const mutableData = { ...this._data };
+    for (const e of events) {
+      // TODO: this could be a path to a nested structure in the map
+      e.changes.keys.forEach((change, key) =>
+        this.processChange(mutableData, change, key)
+      );
+    }
     // compare to see if we should set
+  };
+
+  private processChange = (
+    mutableData: T,
+    change: {
+      action: "add" | "update" | "delete";
+      oldValue: any;
+    },
+    key: string
+  ) => {
+    switch (change.action) {
+      case "add":
+      case "update":
+        mutableData[key] = this.ymap.get(key);
+        break;
+      case "delete":
+        delete mutableData[key];
+        break;
+    }
   };
 }
 

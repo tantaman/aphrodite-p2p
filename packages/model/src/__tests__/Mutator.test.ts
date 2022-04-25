@@ -1,10 +1,10 @@
 import { Node } from "../Node";
-import createContext from "../context";
+import createContext, { Context } from "../context";
 import { ID_of } from "../ID";
 import root from "../root";
 import { DefineNode, RequiredNodeData, stringField } from "../Schema";
 import { Viewer, viewer } from "../viewer";
-import { ChangesetExecutor } from "../ChangesetExecutor";
+import cache from "../cache";
 
 const DeckSchema = {
   storage: {
@@ -31,15 +31,20 @@ test("create mutation builder changeset generation", () => {
 
 class TestNode implements Node<RequiredNodeData> {
   _destroy(): void {}
+  getContext(): Context {
+    return context;
+  }
 }
 
 test("update mutation builder", () => {
   const Deck = DefineNode(DeckSchema, DeckEdges);
   const deck = Deck.create(context).set({ name: "foo" }).save();
-  console.log(deck);
 
   const updated = Deck.update(deck).set({ name: "bar" }).save();
-  console.log(updated);
 });
 
 test("delete mutation builder", () => {});
+
+afterAll(() => {
+  cache.destroy();
+});

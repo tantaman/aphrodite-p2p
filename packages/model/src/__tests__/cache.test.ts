@@ -2,9 +2,13 @@ import { id } from "../ID";
 import cache from "../cache";
 import { RequiredNodeData } from "../Schema";
 import { Node } from "../Node";
+import { Context } from "context";
 
 class TestNode implements Node<RequiredNodeData> {
   _destroy(): void {}
+  getContext(): Context {
+    throw new Error();
+  }
 }
 test("The cache lets me set things", () => {
   expect(() => cache.set(id<TestNode>("sdf"), new TestNode())).not.toThrow();

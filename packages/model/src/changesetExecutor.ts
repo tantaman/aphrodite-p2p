@@ -23,7 +23,7 @@
 // the reason to retain it for ourselves would be to handle
 // undo/redo for non-replicated models
 
-import cache from "cache";
+import cache from "./cache";
 import { Context } from "context";
 import { Changeset, CreateChangeset, UpdateChangeset } from "./Changeset";
 import { ID_of } from "./ID";
@@ -86,10 +86,12 @@ export class ChangesetExecutor {
           changeset.updates as any
         );
         cache.set(ret._id, ret);
-        this.updateY(doc, changeset);
+        ret._update(changeset);
+        // this.updateY(doc, changeset);
         return ret;
       case "update":
-        this.updateY(doc, changeset);
+        changeset.node._update(changeset);
+        // this.updateY(doc, changeset);
         return changeset.node;
       case "delete":
         const removed = cache.remove(changeset._id);
@@ -99,20 +101,23 @@ export class ChangesetExecutor {
     }
   }
 
-  private updateY(
-    doc: y.Doc,
-    changeset: CreateChangeset<any, any> | UpdateChangeset<any, any>
-  ) {
-    const ymap = doc.getMap(changeset._id);
-    // TODO: we need access to the schema to know
-    // if any of these sub-types are replicated types (e.g., maps)
-    Object.entries(changeset.updates).forEach(([key, value]) => {
-      if (key === "_id" || key === "_parentDoc") {
-        return;
-      }
-      ymap.set(key, value);
-    });
-  }
+  // private updateY(
+  //   doc: y.Doc,
+  //   changeset: CreateChangeset<any, any> | UpdateChangeset<any, any>
+  // ) {
+  //   console.log(changeset._id);
+  //   const ymap = doc.getMap(changeset._id);
+  //   console.log(ymap);
+  //   // TODO: we need access to the schema to know
+  //   // if any of these sub-types are replicated types (e.g., maps)
+  //   Object.entries(changeset.updates).forEach(([key, value]) => {
+  //     if (key === "_id" || key === "_parentDoc") {
+  //       return;
+  //     }
+  //     console.log(key, value);
+  //     ymap.set(key, value);
+  //   });
+  // }
 
   _mergeChangesets(): Changeset<any, any>[] {
     const merged: Map<ID_of<any>, Changeset<any, any>> = new Map();

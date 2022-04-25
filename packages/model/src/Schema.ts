@@ -148,7 +148,7 @@ export function DefineNode<N extends NodeSchema, E extends NodeSchemaEdges>(
   Object.entries(node.fields).forEach(([key, value]) => {
     Object.defineProperty(ConcreteNode.prototype, key, {
       get() {
-        return this.data[key];
+        return this._data[key];
       },
     });
   });

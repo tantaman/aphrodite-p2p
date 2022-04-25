@@ -14,7 +14,7 @@ import {
   NodeSchemaEdges,
   RequiredNodeData,
 } from "./Schema";
-import { ChangesetExecutor } from "changesetExecutor";
+import { ChangesetExecutor } from "./ChangesetExecutor";
 
 // Validation should be applied in mutators?
 // Well field level validation, yes
