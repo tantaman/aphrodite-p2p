@@ -14,23 +14,98 @@
 // 1 -> collapse changesets in the batch
 // 2 -> call _merge or _create or delete
 //
+// Changesets shouldn't create log events...
+// those should come from the merging into the node now since node
+// represent stable source of truth after replication reconciliation
+//
 // If yjs has undo/redo capability....
 // should we retain that for ourselves too?
 // the reason to retain it for ourselves would be to handle
 // undo/redo for non-replicated models
 
-import { invariant } from "@aphro/lf-error";
-import { Changeset } from "Changeset";
-import { ID_of } from "ID";
+import cache from "cache";
+import { Context } from "context";
+import { Changeset } from "./Changeset";
+import { ID_of } from "./ID";
+import { Node } from "./Node";
 
 type MergedChangesets = Map<ID_of<any>, Changeset<any, any>>;
 
-class ChangesetExecutor {
-  constructor(private changesets: Changeset<any, any>[]) {}
+export class ChangesetExecutor {
+  constructor(
+    private context: Context,
+    private changesets: Changeset<any, any>[]
+  ) {}
 
   execute() {
     // Merge multiple updates to the same object into a single changeset
     const merged = this.mergeChangesets();
+    // this.removeNoops(merged);
+    // this.apply(merged);
+  }
+
+  // private apply(changesets: MergedChangesets): [Transaction, Set<Task>] {
+  //   // iterate changesets
+  //   // merge into each model
+  //   // get resulting notifications and prior states from model
+  //   // return
+
+  //   // TODO: we don't need to keep prior states
+  //   // since the transaction before us is the prior state. Well...
+  //   // the transaction before us that contains our model!
+  //   // Hard to find that.
+  //   const priorStates = new ModelMap<IModel<any>, Partial<any>>();
+  //   const notifications: Set<Task> = new Set();
+  //   for (const [model, changes] of changesets) {
+  //     const mergeResult = model._merge(changes);
+  //     if (mergeResult == null) {
+  //       // TODO: we need a test for this merge behavior!
+  //       // we need tests for all the things!
+  //       continue;
+  //     }
+  //     const [lastData, currentNotifications] = mergeResult;
+  //     for (const task of currentNotifications) {
+  //       notifications.add(task);
+  //     }
+  //     priorStates.set(model, lastData);
+  //   }
+
+  //   return [
+  //     {
+  //       priorStates,
+  //       changesets,
+  //     },
+  //     notifications,
+  //   ];
+  // }
+
+  private processChanges(changeset: Changeset<any, any>): Node<any> {
+    // We need a wholistic view of all changesets so we can
+    // group them all into a single Y transaction.
+    switch (changeset.type) {
+      case "create":
+        const ret = changeset.definition._createFromData(
+          this.context,
+          changeset.updates as any
+        );
+        cache.set(ret._id, ret);
+        return ret;
+      case "update":
+      // get the yjs doc and map from context?
+      // update it?
+      // or have the model do it?
+      case "delete":
+    }
+
+    // We'll grab the models
+    // And commit our changes to them.
+    // Then send out log events
+    // Can we do the latter though?
+    // Will yjs synchronously call us back?
+
+    // Where should we grab models from?
+    // Well changesets are always local...
+    // And what if new models arrive in the yjs map?
   }
 
   private mergeChangesets(): MergedChangesets {

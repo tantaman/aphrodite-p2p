@@ -4,6 +4,11 @@ import { ID_of } from "./ID";
 import * as Y from "yjs";
 import { invariant } from "@aphro/lf-error";
 import { RequiredNodeData } from "./Schema";
+type Disposer = () => void;
+function typedKeys<T>(o: T): (keyof T)[] {
+  // @ts-ignore
+  return Object.keys(o);
+}
 
 /*
 Persisted only
@@ -12,7 +17,101 @@ Persisted & Synced
 Not persisted or synced (ephemeral)
 */
 
-export interface Node {}
+export interface Node<T extends RequiredNodeData> {}
+
+abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
+  private subscriptions: Set<() => void> = new Set();
+  private keyedSubscriptions: Map<keyof T, Set<() => void>> = new Map();
+  protected data: T;
+  protected readonly context: Context;
+
+  constructor(context: Context, data: T) {
+    this.context = context;
+    this.data = data;
+  }
+
+  subscribe(c: () => void): Disposer {
+    this.subscriptions.add(c);
+    return () => this.subscriptions.delete(c);
+  }
+
+  subscribeTo(keys: (keyof T)[], c: () => void): Disposer {
+    keys.forEach((k) => {
+      let subs = this.keyedSubscriptions.get(k);
+      if (subs == null) {
+        subs = new Set();
+        this.keyedSubscriptions.set(k, subs);
+      }
+
+      subs.add(c);
+    });
+
+    return () => keys.forEach((k) => this.keyedSubscriptions.get(k)?.delete(c));
+  }
+
+  _update(newData: Partial<T>) {
+    // replicated models go thru y
+    // non-replicated go straight to merge
+  }
+
+  protected merge(
+    newData: Partial<T> | undefined
+  ): [Partial<T>, Set<() => void>] | null {
+    const lastData = this.data;
+    this.data = {
+      ...this.data,
+      ...newData,
+    };
+    let castLast = lastData as any;
+    if (castLast.id !== undefined) {
+      castLast.id = undefined;
+    }
+
+    let unchangedKeys = new Set();
+    if (newData != null) {
+      Object.entries(newData).forEach((entry) => {
+        if (lastData[entry[0]] === entry[1]) {
+          unchangedKeys.add(entry[0]);
+        }
+      });
+    }
+
+    const notifications = this.gatherNotifications(
+      newData !== undefined
+        ? unchangedKeys.size === 0
+          ? typedKeys(newData)
+          : typedKeys(newData).filter((k) => !unchangedKeys.has(k))
+        : undefined
+    );
+    return [lastData, notifications];
+  }
+
+  private gatherNotifications(changedKeys?: (keyof T)[]): Set<() => void> {
+    const notifications = new Set(this.gatherIndiscriminateNotifications());
+    if (changedKeys && this.keyedSubscriptions.size > 0) {
+      this.gatherKeyedNotifications(changedKeys, notifications);
+    }
+    return notifications;
+  }
+
+  private gatherIndiscriminateNotifications() {
+    return this.subscriptions;
+  }
+
+  private gatherKeyedNotifications(
+    changedKeys: (keyof T)[],
+    notifications: Set<() => void>
+  ) {
+    for (const key of changedKeys) {
+      const subs = this.keyedSubscriptions.get(key);
+      if (subs) {
+        for (const c of subs) {
+          notifications.add(c);
+        }
+      }
+    }
+  }
+}
 
 // All just nodes but change based on storage adapter?
 // interface PersistedNode {}
@@ -31,16 +130,14 @@ export interface Node {}
 // Probs all changes should go thru y
 // and then be synced into the model
 // which is then synced into storage
-export abstract class ReplicatedNode<T extends RequiredNodeData>
-  implements Node
-{
+export abstract class ReplicatedNode<
+  T extends RequiredNodeData
+> extends NodeBase<T> {
   private ymap: Y.Map<FieldType>;
   private ydoc: Y.Doc;
-  protected data: T;
-  protected readonly context: Context;
 
   constructor(context: Context, data: T) {
-    this.context = context;
+    super(context, data);
     this.ydoc = context.doc(data._parentDocId);
     this.ymap = this.ydoc.getMap(data._id);
     this.data = data;
