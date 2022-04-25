@@ -6,7 +6,7 @@ import {
   CreateMutationBuilder,
   DeleteMutationBuilder,
   UpdateMutationBuilder,
-} from "Mutator";
+} from "./Mutator";
 import { Context } from "./context";
 import { ID_of } from "./ID";
 import { Doc, ReplicatedNode } from "./Node";

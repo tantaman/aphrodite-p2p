@@ -3,7 +3,7 @@ import { FieldType } from "./field";
 import { ID_of } from "./ID";
 import * as Y from "yjs";
 import { invariant } from "@aphro/lf-error";
-import { RequiredNodeData } from "Schema";
+import { RequiredNodeData } from "./Schema";
 
 /*
 Persisted only

@@ -1,5 +1,5 @@
-import { ID_of } from "ID";
-import { Doc } from "Node";
+import { ID_of } from "./ID";
+import { Doc } from "./Node";
 import {
   NodeDefinition,
   NodeInstanceType,
