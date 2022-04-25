@@ -3,3 +3,4 @@ packages:
   - "packages/mutator"
   - "packages/persistor"
   - "packages/error"
+  - "examples/todo-app"
