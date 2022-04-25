@@ -25,3 +25,7 @@ namespace Symbols {
 }
 
 export type ID_of<T> = Opaque<string, T>;
+
+export function id<T>(id: string): ID_of<T> {
+  return id as ID_of<T>;
+}
