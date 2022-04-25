@@ -189,6 +189,7 @@ export abstract class ReplicatedNode<
   // or we need to deeply observe?
   private yObserver = (events: Y.YEvent<any>[], tx: Y.Transaction) => {
     const mutableData = { ...this._data };
+    console.log(tx.origin);
     for (const e of events) {
       // TODO: this could be a path to a nested structure in the map
       e.changes.keys.forEach((change, key) =>

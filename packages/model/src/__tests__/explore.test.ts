@@ -23,9 +23,9 @@ test("basic replicated node", () => {
 
   // map.set("name", "foo");
 
-  new UpdateMutationBuilder(node as any).set({ name: "foo" }).save();
+  new UpdateMutationBuilder(node as any).set({ name: "bar" }).save();
   // map.set("name", "bar");
-  console.log("done");
+  console.log(node._d());
 });
 
 afterAll(() => cache.destroy());
