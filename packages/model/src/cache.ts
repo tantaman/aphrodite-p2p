@@ -57,7 +57,7 @@ function remove<T extends Node<any>>(id: ID_of<T>): T | null {
 
 // TODO: we can be smarter here if/when the cache becomes massive.
 // E.g., spread the GC over many ticks via chunking.
-setInterval(() => {
+const intervalHandle = setInterval(() => {
   for (let [key, ref] of cache.entries()) {
     if (ref.deref == null) {
       cache.delete(key);
@@ -69,4 +69,8 @@ export default {
   get,
   set,
   remove,
+  destroy() {
+    cache.clear();
+    clearInterval(intervalHandle);
+  },
 };
