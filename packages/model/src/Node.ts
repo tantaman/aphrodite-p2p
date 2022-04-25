@@ -3,6 +3,7 @@ import { FieldType } from "./field";
 import { ID_of } from "./ID";
 import * as Y from "yjs";
 import { invariant } from "@aphro/lf-error";
+import { RequiredNodeData } from "Schema";
 
 /*
 Persisted only
@@ -30,12 +31,8 @@ export interface Node {}
 // Probs all changes should go thru y
 // and then be synced into the model
 // which is then synced into storage
-export abstract class ReplicatedNode<
-  T extends {
-    _id: ID_of<any /*this*/>;
-    _parentDoc: ID_of<Doc<any>> | null;
-  }
-> implements Node
+export abstract class ReplicatedNode<T extends RequiredNodeData>
+  implements Node
 {
   private ymap: Y.Map<FieldType>;
   private ydoc: Y.Doc;
@@ -44,7 +41,7 @@ export abstract class ReplicatedNode<
 
   constructor(context: Context, data: T) {
     this.context = context;
-    this.ydoc = context.doc(data._parentDoc);
+    this.ydoc = context.doc(data._parentDocId);
     this.ymap = this.ydoc.getMap(data._id);
     this.data = data;
 
@@ -92,15 +89,14 @@ export abstract class ReplicatedNode<
  * A Doc is a Node that handles it own replication.
  */
 export abstract class Doc<
-  T extends {
-    _id: ID_of<any /*this*/>;
-    _parentDoc: ID_of<any /*this*/>;
-    [key: string]: FieldType;
-  }
+  T extends RequiredNodeData
 > extends ReplicatedNode<T> {
   // This'll create a new doc which is put into the root doc via id.
   constructor(context: Context, data: T) {
-    invariant(data._id === data._parentDoc, "Docs must be their own parents.");
+    invariant(
+      data._id === data._parentDocId,
+      "Docs must be their own parents."
+    );
     super(context, data);
   }
 }

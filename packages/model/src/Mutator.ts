@@ -1,3 +1,5 @@
+import { Context } from "context";
+import { nanoid } from "nanoid";
 import {
   Changeset,
   CreateChangeset,
@@ -44,7 +46,7 @@ abstract class CreateOrUpdateMutationBuilder<
   // I guess that is something that's handled at the commit phase
   // in the changeset executor.
   protected updates: Partial<NodeInternalDataType<N>>;
-  constructor() {}
+  constructor(protected readonly context: Context) {}
 
   set(newData: Partial<NodeInternalDataType<N>>): this {
     this.updates = {
@@ -66,7 +68,7 @@ export class UpdateMutationBuilder<
   // esp if we allow updating non field edges from here.
 
   constructor(private readonly node: NodeInstanceType<N, E>) {
-    super();
+    super(node.getContext());
   }
 
   toChangeset(): UpdateChangeset<N, E> {
@@ -82,8 +84,11 @@ export class CreateMutationBuilder<
   N extends NodeSchema,
   E extends NodeSchemaEdges
 > extends CreateOrUpdateMutationBuilder<N, E> {
-  constructor(private readonly definition: NodeDefinition<N, E>) {
-    super();
+  constructor(
+    context: Context,
+    private readonly definition: NodeDefinition<N, E>
+  ) {
+    super(context);
   }
 
   toChangeset(): CreateChangeset<N, E> {
@@ -91,6 +96,10 @@ export class CreateMutationBuilder<
       type: "create",
       updates: this.updates,
       definition: this.definition,
+      _id: nanoid() as any,
+      // TODO: make user set parent? fatal on lack of parent?
+      // TODO: run whole object validation rules here?
+      _parentDocId: null,
     };
   }
 }

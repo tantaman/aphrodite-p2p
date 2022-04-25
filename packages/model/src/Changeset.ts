@@ -1,3 +1,5 @@
+import { ID_of } from "ID";
+import { Doc } from "Node";
 import {
   NodeDefinition,
   NodeInstanceType,
@@ -13,6 +15,8 @@ export type Changeset<N extends NodeSchema, E extends NodeSchemaEdges> =
 
 export type CreateChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
   type: "create";
+  _id: ID_of<any>;
+  _parentDocId: ID_of<Doc<any>> | null;
   updates: Partial<NodeInternalDataType<N>>;
   definition: NodeDefinition<N, E>;
 };

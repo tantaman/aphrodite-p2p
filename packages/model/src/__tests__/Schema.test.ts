@@ -14,7 +14,7 @@ test("Defining a node", () => {
 
   const Deck = DefineNode(DeckDefinition, DeckEdges);
 
-  expect(Deck.createFromData).not.toBeNull();
+  expect(Deck._createFromData).not.toBeNull();
   expect(Deck.schema).not.toBeNull();
   expect(Deck.schema.node).toEqual(DeckDefinition);
   expect(Deck.schema.edges).toEqual(DeckEdges);

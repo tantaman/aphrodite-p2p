@@ -44,18 +44,18 @@ const Deck = DefineNode(DeckDefinition, DeckEdges);
 const context = createContext(viewer(1 as any), root());
 
 test("creating a node", () => {
-  const deck = Deck.createFromData(context, {
+  const deck = Deck._createFromData(context, {
     _id: "sdf" as any,
-    _parentDoc: null,
+    _parentDocId: null,
     name: "Test",
   });
   expect(deck).toBeTruthy();
 });
 
 test("Read fields on the created node", () => {
-  const deck = Deck.createFromData(context, {
+  const deck = Deck._createFromData(context, {
     _id: "sdf" as any,
-    _parentDoc: null,
+    _parentDocId: null,
     name: "Test",
   });
   expect(deck.name).toEqual("Test");

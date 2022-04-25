@@ -2,6 +2,7 @@
 // 1. Root
 // 2. ID_of<Doc subclass>
 
+import { CreateMutationBuilder, UpdateMutationBuilder } from "Mutator";
 import { Context } from "./context";
 import { ID_of } from "./ID";
 import { Doc, ReplicatedNode } from "./Node";
@@ -83,6 +84,8 @@ export type NodeInstanceType<
   readonly [key in keyof E as Querify<
     key extends string ? key : never
   >]: () => QueryInstanceType<E[key]["dest"], NodeInstanceType<T, E>>;
+} & {
+  getContext(): Context;
 };
 
 type QueryInstanceType<
@@ -95,8 +98,8 @@ type QueryInstanceType<
 } & Query<N>;
 
 export type RequiredNodeData = {
-  _id: ID_of<any>;
-  _parentDoc: ID_of<Doc<any>> | null;
+  readonly _id: ID_of<any>;
+  readonly _parentDocId: ID_of<Doc<any>> | null;
 };
 
 export type NodeInternalDataType<T extends NodeSchema> = {
@@ -112,7 +115,7 @@ export type NodeDefinition<T extends NodeSchema, E extends NodeSchemaEdges> = {
     node: T;
     edges: E;
   };
-  createFromData: (
+  _createFromData: (
     context: Context,
     data: NodeInternalDataType<T>
   ) => NodeInstanceType<T, E>;
@@ -121,12 +124,12 @@ export type NodeDefinition<T extends NodeSchema, E extends NodeSchemaEdges> = {
 // And can we map the type to generate a typed instance...
 // e.g., queryEdge
 // getField
-export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
-  node: T,
+export function DefineNode<N extends NodeSchema, E extends NodeSchemaEdges>(
+  node: N,
   edges: E
-): NodeDefinition<T, E> {
-  let definition: NodeDefinition<T, E>;
-  class ConcreteNode extends ReplicatedNode<NodeInternalDataType<T>> {
+): NodeDefinition<N, E> {
+  let definition: NodeDefinition<N, E>;
+  class ConcreteNode extends ReplicatedNode<NodeInternalDataType<N>> {
     readonly _internal = {
       definition,
     } as const;
@@ -146,8 +149,16 @@ export function DefineNode<T extends NodeSchema, E extends NodeSchemaEdges>(
       edges,
     },
 
+    create(context: Context): CreateMutationBuilder<N, E> {
+      return new CreateMutationBuilder(context, definition);
+    },
+
+    update(node: NodeInstanceType<N, E>): UpdateMutationBuilder<N, E> {
+      return new UpdateMutationBuilder(node);
+    },
+
     // @ts-ignore
-    createFromData: (context: Context, data) => {
+    _createFromData: (context: Context, data) => {
       return new ConcreteNode(context, data);
     },
   };
