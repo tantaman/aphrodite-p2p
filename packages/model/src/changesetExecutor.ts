@@ -44,6 +44,11 @@ export class ChangesetExecutor {
     // this.apply(merged);
   }
 
+  private apply(changesets: MergedChangesets): [] {
+    // collect all that use the same doc
+    return [];
+  }
+
   // private apply(changesets: MergedChangesets): [Transaction, Set<Task>] {
   //   // iterate changesets
   //   // merge into each model
@@ -94,6 +99,9 @@ export class ChangesetExecutor {
       // get the yjs doc and map from context?
       // update it?
       // or have the model do it?
+      // based on the node definition we can decide
+      // a. yjs route
+      // b. merge into node directly
       case "delete":
     }
 
