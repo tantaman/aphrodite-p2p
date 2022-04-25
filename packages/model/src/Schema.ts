@@ -2,7 +2,11 @@
 // 1. Root
 // 2. ID_of<Doc subclass>
 
-import { CreateMutationBuilder, UpdateMutationBuilder } from "Mutator";
+import {
+  CreateMutationBuilder,
+  DeleteMutationBuilder,
+  UpdateMutationBuilder,
+} from "Mutator";
 import { Context } from "./context";
 import { ID_of } from "./ID";
 import { Doc, ReplicatedNode } from "./Node";
@@ -110,15 +114,18 @@ interface Query<T> {
   gen(): Promise<T[]>;
 }
 
-export type NodeDefinition<T extends NodeSchema, E extends NodeSchemaEdges> = {
+export type NodeDefinition<N extends NodeSchema, E extends NodeSchemaEdges> = {
   schema: {
-    node: T;
+    node: N;
     edges: E;
   };
   _createFromData: (
     context: Context,
-    data: NodeInternalDataType<T>
-  ) => NodeInstanceType<T, E>;
+    data: NodeInternalDataType<N>
+  ) => NodeInstanceType<N, E>;
+  create(context: Context): CreateMutationBuilder<N, E>;
+  update(node: NodeInstanceType<N, E>): UpdateMutationBuilder<N, E>;
+  delete(node: NodeInstanceType<N, E>): DeleteMutationBuilder<N, E>;
 };
 
 // And can we map the type to generate a typed instance...
@@ -155,6 +162,10 @@ export function DefineNode<N extends NodeSchema, E extends NodeSchemaEdges>(
 
     update(node: NodeInstanceType<N, E>): UpdateMutationBuilder<N, E> {
       return new UpdateMutationBuilder(node);
+    },
+
+    delete(node: NodeInstanceType<N, E>): DeleteMutationBuilder<N, E> {
+      return new DeleteMutationBuilder(node);
     },
 
     // @ts-ignore

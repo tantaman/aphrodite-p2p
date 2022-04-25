@@ -12,6 +12,7 @@ import {
   NodeInternalDataType,
   NodeSchema,
   NodeSchemaEdges,
+  RequiredNodeData,
 } from "./Schema";
 
 // Validation should be applied in mutators?
@@ -48,7 +49,9 @@ abstract class CreateOrUpdateMutationBuilder<
   protected updates: Partial<NodeInternalDataType<N>>;
   constructor(protected readonly context: Context) {}
 
-  set(newData: Partial<NodeInternalDataType<N>>): this {
+  set(
+    newData: Partial<Omit<NodeInternalDataType<N>, keyof RequiredNodeData>>
+  ): this {
     this.updates = {
       ...this.updates,
       ...newData,

@@ -1,5 +1,9 @@
+import createContext from "context";
+import { ID_of } from "ID";
 import { CreateMutationBuilder } from "Mutator";
+import root from "root";
 import { DefineNode, stringField } from "Schema";
+import { Viewer, viewer } from "viewer";
 
 const DeckSchema = {
   storage: {
@@ -12,10 +16,11 @@ const DeckSchema = {
 } as const;
 const DeckEdges = {};
 
+const context = createContext(viewer("123" as ID_of<Viewer>), root());
 test("create mutation builder changeset generation", () => {
   const Deck = DefineNode(DeckSchema, DeckEdges);
 
-  // const create = new CreateMutationBuilder();
+  const changeset = Deck.create(context).set({ name: "foo" }).toChangeset();
 });
 
 test("update mutation builder", () => {});
