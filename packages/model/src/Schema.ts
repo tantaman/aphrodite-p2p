@@ -90,6 +90,7 @@ export type NodeInstanceType<
   >]: () => QueryInstanceType<E[key]["dest"], NodeInstanceType<T, E>>;
 } & {
   getContext(): Context;
+  get _id(): ID_of<NodeInstanceType<T, E>>;
 };
 
 type QueryInstanceType<

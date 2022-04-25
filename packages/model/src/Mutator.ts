@@ -14,6 +14,7 @@ import {
   NodeSchemaEdges,
   RequiredNodeData,
 } from "./Schema";
+import { ID_of } from "ID";
 
 // Validation should be applied in mutators?
 // Well field level validation, yes
@@ -79,6 +80,7 @@ export class UpdateMutationBuilder<
       type: "update",
       updates: this.updates,
       node: this.node,
+      _id: this.node._id,
     };
   }
 }
@@ -114,12 +116,15 @@ export class DeleteMutationBuilder<
   E extends NodeSchemaEdges
 > implements MutationBuilder<N, E>
 {
-  constructor(private node: NodeInstanceType<N, E>) {}
+  constructor(
+    private nodeOrId: NodeInstanceType<N, E> | ID_of<NodeInstanceType<N, E>>
+  ) {}
 
   toChangeset(): DeleteChangeset<N, E> {
     return {
       type: "delete",
-      node: this.node,
+      node: "_id" in this.nodeOrId ? this.nodeOrId : null,
+      _id: "_id" in this.nodeOrId ? this.nodeOrId._id : this.nodeOrId,
     };
   }
 }

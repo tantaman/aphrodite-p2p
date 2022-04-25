@@ -23,11 +23,13 @@ export type CreateChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
 
 export type UpdateChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
   type: "update";
+  _id: ID_of<any>;
   updates: Partial<NodeInternalDataType<N>>;
   node: NodeInstanceType<N, E>;
 };
 
 export type DeleteChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
   type: "delete";
-  node: NodeInstanceType<N, E>;
+  _id: ID_of<any>;
+  node: NodeInstanceType<N, E> | null;
 };
