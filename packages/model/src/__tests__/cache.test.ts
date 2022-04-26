@@ -23,6 +23,7 @@ class TestNode implements Node<RequiredNodeData> {
     throw new Error();
   }
 }
+
 test("The cache lets me set things", () => {
   const myId = id<TestNode>("sdf");
   expect(() => cache.set(myId, new TestNode(myId))).not.toThrow();

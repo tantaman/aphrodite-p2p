@@ -167,13 +167,13 @@ export abstract class ReplicatedNode<
     for (const e of events) {
       // TODO: this could be a path to a nested structure in the map
       e.changes.keys.forEach((change, key) =>
-        this.processChange(mutableData, change, key)
+        this.processYChange(mutableData, change, key)
       );
     }
     // compare to see if we should set
   };
 
-  private processChange = (
+  private processYChange = (
     mutableData: T,
     change: {
       action: "add" | "update" | "delete";

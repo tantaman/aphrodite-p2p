@@ -30,7 +30,7 @@ import { ID_of } from "./ID";
 import { Node } from "./Node";
 import * as y from "yjs";
 
-type MergedChangesets = Map<ID_of<any>, Changeset<any, any>>;
+type CombinedChangesets = Map<ID_of<any>, Changeset<any, any>>;
 
 export type YOrigin = {
   nodes: Node<any>[];
@@ -46,12 +46,12 @@ export class ChangesetExecutor {
   // to replicate to logs.
   execute(): Node<any>[] {
     // Merge multiple updates to the same object into a single changeset
-    const merged = this._mergeChangesets();
-    this.removeNoops(merged);
-    return this.apply(merged);
+    const combined = this._combineChangesets();
+    this.removeNoops(combined);
+    return this.apply(combined);
   }
 
-  private removeNoops(changesets: MergedChangesets) {
+  private removeNoops(changesets: CombinedChangesets) {
     for (const [id, changeset] of changesets) {
       if (changeset.type === "update") {
         if (changeset.node._isNoop(changeset.updates)) {
@@ -61,7 +61,7 @@ export class ChangesetExecutor {
     }
   }
 
-  private apply(changesets: MergedChangesets): Node<any>[] {
+  private apply(changesets: CombinedChangesets): Node<any>[] {
     // collect all that use the same doc
     // Now the real question is how do we get the final transactions out
     // so we can push them onto our log?
@@ -95,8 +95,8 @@ export class ChangesetExecutor {
     }
   }
 
-  _mergeChangesets(): MergedChangesets {
-    const merged: MergedChangesets = new Map();
+  _combineChangesets(): CombinedChangesets {
+    const merged: CombinedChangesets = new Map();
     for (const changeset of this.changesets) {
       const existing = merged.get(changeset._id);
 
