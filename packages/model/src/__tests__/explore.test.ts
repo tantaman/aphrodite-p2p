@@ -1,31 +1,91 @@
-import { UpdateMutationBuilder } from "../Mutator";
-import context from "../context";
-import { id } from "../ID";
-import { NodeBase } from "../Node";
-import root from "../root";
-import { RequiredNodeData } from "../Schema";
-import { viewer } from "../viewer";
+import { DefineNode, idField, numberField, stringField } from "../Schema";
 import cache from "../cache";
+import context from "../context";
+import { viewer } from "../viewer";
+import root from "../root";
+import { id } from "../ID";
+import { commit } from "../commit";
 
-const ctx = context(viewer(id("sdf")), root());
-test("basic replicated node", () => {
-  class MyNode extends NodeBase<
-    {
-      name: string;
-    } & RequiredNodeData
-  > {}
+// TODO: incorporate fast check?
+// https://github.com/dubzzz/fast-check
 
-  const node = new MyNode(ctx, {
-    _id: id("abc"),
-    _parentDocId: null,
-    name: "foo",
-  });
+const DeckSchema = {
+  storage: {
+    replicated: true,
+    persisted: true,
+  },
+  fields: {
+    name: stringField,
+  },
+} as const;
 
-  // map.set("name", "foo");
+const ComponentSchema = {
+  storage: {
+    replicated: true,
+    persisted: true,
+  },
+  fields: {
+    type: stringField,
+    content: stringField,
+    slideId: idField,
+  },
+} as const;
 
-  new UpdateMutationBuilder(node as any).set({ name: "bar" }).save();
-  // map.set("name", "bar");
-  // console.log(node._d());
+const SlideSchema = {
+  storage: {
+    replicated: true,
+    persisted: true,
+  },
+  fields: {
+    order: numberField,
+    deckId: idField,
+  },
+} as const;
+
+const SlideEdges = {
+  components: {
+    type: "foreign",
+    field: "slideId",
+    dest: ComponentSchema,
+  },
+} as const;
+
+const DeckEdges = {
+  slides: {
+    type: "foreign",
+    field: "deckId",
+    dest: SlideSchema,
+  },
+} as const;
+
+const Deck = DefineNode(DeckSchema, DeckEdges);
+const Slide = DefineNode(SlideSchema, SlideEdges);
+const Component = DefineNode(ComponentSchema, {});
+
+const ctx = context(viewer(id("me")), root());
+test("explore", () => {
+  const deckCs = Deck.create(ctx)
+    .set({
+      name: "Exploratory",
+    })
+    .toChangeset();
+  const slideCs = Slide.create(ctx)
+    .set({
+      deckId: deckCs._id,
+    })
+    .toChangeset();
+  const componentCs = Component.create(ctx)
+    .set({
+      slideId: slideCs._id,
+      type: "text",
+      content: "Double Click to Edit",
+    })
+    .toChangeset();
+
+  // TODO: use a special class to preserve TS types
+  const deck = commit(ctx, [deckCs, slideCs, componentCs]).nodes.get(
+    deckCs._id // <-- id should be typed here...
+  );
 });
 
 afterAll(() => cache.destroy());

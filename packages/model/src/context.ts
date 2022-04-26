@@ -10,6 +10,10 @@ export type Context = {
   readonly viewer: Viewer;
   readonly root: Root;
   readonly doc: DocProvider;
+  // cache
+  // default logs
+  // svc registry?
+  // storage resolver?
 };
 
 export default function context(viewer: Viewer, root: Root): Context {

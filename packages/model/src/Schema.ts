@@ -10,6 +10,7 @@ import {
 import { Context } from "./context";
 import { ID_of } from "./ID";
 import { Doc, Node, NodeBase } from "./Node";
+import nodeStorage from "nodeStorage";
 
 export function stringField(): string {
   throw new Error();
@@ -26,7 +27,7 @@ export function booleanField(): boolean {
 export function arrayField(): readonly any[] {
   throw new Error();
 }
-export function idField(): ID_of<any> {
+export function idField<T>(): ID_of<T> {
   throw new Error();
 }
 export function objectField(): Object {
@@ -38,6 +39,9 @@ export function setField(): Set<any> {
 export function mapField(): Map<any, any> {
   throw new Error();
 }
+// export function enumField<T>(): T {
+//   throw new Error();
+// }
 
 export type SchemaFieldType =
   | typeof stringField
@@ -60,6 +64,12 @@ type ForeignKeyEdge<TDest extends NodeSchema> = {
   type: "foreign";
   field: string; // Can we assert that this field exists on source?
   dest: TDest; // <-- schema.. once we have types worked out
+};
+type JunctionEdge<TSrc extends NodeSchema, TDest extends NodeSchema> = {
+  type: "junction";
+  src: TSrc;
+  dest: TDest;
+  bidirectional: boolean;
 };
 
 export type NodeSchema = {
@@ -122,6 +132,10 @@ export type NodeDefinition<N extends NodeSchema, E extends NodeEdgesSchema> = {
     data: NodeInternalDataType<N>
   ) => NodeInstanceType<N, E>;
   create(context: Context): CreateMutationBuilder<N, E>;
+  read(
+    context: Context,
+    id: ID_of<NodeInstanceType<N, E>>
+  ): Promise<NodeInstanceType<N, E>>;
   update(node: NodeInstanceType<N, E>): UpdateMutationBuilder<N, E>;
   delete(node: NodeInstanceType<N, E>): DeleteMutationBuilder<N, E>;
 };
@@ -157,6 +171,15 @@ export function DefineNode<N extends NodeSchema, E extends NodeEdgesSchema>(
     create(context: Context): CreateMutationBuilder<N, E> {
       return new CreateMutationBuilder(context, definition);
     },
+
+    async read(
+      context: Context,
+      id: ID_of<NodeInstanceType<N, E>>
+    ): Promise<NodeInstanceType<N, E>> {
+      return await nodeStorage.readOne(context, definition, id);
+    },
+
+    // queryAll ?
 
     update(node: NodeInstanceType<N, E>): UpdateMutationBuilder<N, E> {
       return new UpdateMutationBuilder(node);
