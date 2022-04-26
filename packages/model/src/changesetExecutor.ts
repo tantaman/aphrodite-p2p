@@ -31,6 +31,10 @@ import { Node } from "./Node";
 import * as y from "yjs";
 
 type CombinedChangesets = Map<ID_of<any>, Changeset<any, any>>;
+export type Transaction = {
+  readonly changes: Map<ID_of<any>, Changeset<any, any>>;
+  readonly nodes: Map<ID_of<any>, Node<any>>;
+};
 
 export type YOrigin = {
   nodes: Node<any>[];
@@ -44,7 +48,7 @@ export class ChangesetExecutor {
 
   // Ideally we return the transaction list...
   // to replicate to logs.
-  execute(): Node<any>[] {
+  execute(): Transaction {
     // Merge multiple updates to the same object into a single changeset
     const combined = this._combineChangesets();
     this.removeNoops(combined);
@@ -61,8 +65,11 @@ export class ChangesetExecutor {
     }
   }
 
-  private apply(changesets: CombinedChangesets): Node<any>[] {
-    return [];
+  private apply(changesets: CombinedChangesets): Transaction {
+    return {
+      changes: changesets,
+      nodes: new Map(),
+    };
   }
 
   private processChanges(
