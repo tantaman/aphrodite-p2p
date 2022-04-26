@@ -20,7 +20,7 @@ Not persisted or synced (ephemeral)
 export interface Node<T extends RequiredNodeData> {
   readonly _context: Context;
   readonly _id: ID_of<this>;
-  readonly _parentDocId: ID_of<Doc<any>> | null;
+  readonly _parentDocId: ID_of<Doc<RequiredNodeData>> | null;
   _destroy(): void;
   _merge(newData: Partial<T>): [Partial<T>, Set<() => void>];
   _isNoop(updates: Partial<T>): boolean;
@@ -44,7 +44,7 @@ export abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
     return this._data._id;
   }
 
-  get _parentDocId(): ID_of<Doc<any>> | null {
+  get _parentDocId(): ID_of<Doc<RequiredNodeData>> | null {
     return this._data._parentDocId;
   }
 

@@ -3,8 +3,9 @@ import { Doc } from "./Node";
 import root, { Root } from "./root";
 import { Viewer } from "./viewer";
 import * as Y from "yjs";
+import { RequiredNodeData } from "./Schema";
 
-type DocProvider = (parent: ID_of<Doc<any>> | null) => Y.Doc;
+type DocProvider = (parent: ID_of<Doc<RequiredNodeData>> | null) => Y.Doc;
 
 export type Context = {
   readonly viewer: Viewer;

@@ -15,6 +15,7 @@ import {
   RequiredNodeData,
 } from "./Schema";
 import { ChangesetExecutor } from "./ChangesetExecutor";
+import { id } from "./ID";
 
 // Validation should be applied in mutators?
 // Well field level validation, yes
@@ -104,7 +105,7 @@ export class CreateMutationBuilder<
   }
 
   toChangeset(): CreateChangeset<N, E> {
-    const _id = nanoid() as any;
+    const _id = id(nanoid());
     return {
       type: "create",
       updates: {
