@@ -117,10 +117,10 @@ export class ChangesetExecutor {
         return [changeset.node, notifs];
       }
       case "delete": {
-        const removed = cache.remove(changeset._id);
-        const node = changeset.node || removed;
+        cache.remove(changeset._id);
+        const node = changeset.node;
         // TODO: delete notifications?
-        node._destory();
+        node._destroy();
         return [null, new Set()];
       }
     }

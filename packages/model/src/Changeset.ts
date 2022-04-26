@@ -33,5 +33,5 @@ export type DeleteChangeset<N extends NodeSchema, E extends NodeEdgesSchema> = {
   type: "delete";
   _id: ID_of<any>;
   _parentDocId: ID_of<Doc<any>> | null;
-  node: NodeInstanceType<N, E> | null;
+  node: NodeInstanceType<N, E>;
 };

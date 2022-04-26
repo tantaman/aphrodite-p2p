@@ -1,6 +1,11 @@
 import { id, ID_of } from "../ID";
 import cache from "../cache";
-import { RequiredNodeData } from "../Schema";
+import {
+  NodeDefinition,
+  NodeEdgesSchema,
+  NodeSchema,
+  RequiredNodeData,
+} from "../Schema";
 import { Doc, Node } from "../Node";
 import { Context } from "context";
 
@@ -30,6 +35,9 @@ class TestNode implements Node<RequiredNodeData> {
   }
   _isNoop(updates: Partial<RequiredNodeData>): boolean {
     return false;
+  }
+  get _definition(): NodeDefinition<NodeSchema, NodeEdgesSchema> {
+    throw new Error();
   }
 }
 

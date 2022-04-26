@@ -1,3 +1,4 @@
+import { Changeset } from "Changeset";
 import { Context } from "context";
 import { ID_of } from "ID";
 import {
@@ -13,6 +14,12 @@ export default {
     definition: NodeDefinition<N, E>,
     id: ID_of<NodeInstanceType<N, E>>
   ): Promise<NodeInstanceType<N, E>> {
-    throw new Error("read from storage not yet avail");
+    throw new Error("read from storage not yet available");
+  },
+
+  async writeBatch(
+    changes: Changeset<NodeSchema, NodeEdgesSchema>[]
+  ): Promise<void> {
+    throw new Error("Writes to storage not yet available");
   },
 };

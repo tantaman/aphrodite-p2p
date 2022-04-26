@@ -72,14 +72,16 @@ type JunctionEdge<TSrc extends NodeSchema, TDest extends NodeSchema> = {
   bidirectional: boolean;
 };
 
+export type PersistConfig = {
+  engine: "dexie" | "sqlite";
+  db: string;
+  tablish: string;
+};
+
 export type NodeSchema = {
   storage: {
     replicated: boolean;
-    persisted?: {
-      engine: "dexie" | "sqlite";
-      db: string;
-      tablish: string;
-    };
+    persisted?: PersistConfig;
   };
   fields: {
     [key: string]: SchemaFieldType;
@@ -153,9 +155,7 @@ export function DefineNode<N extends NodeSchema, E extends NodeEdgesSchema>(
 ): NodeDefinition<N, E> {
   let definition: NodeDefinition<N, E>;
   class ConcreteNode extends NodeBase<NodeInternalDataType<N>> {
-    readonly _internal = {
-      definition,
-    } as const;
+    readonly _definition = definition;
   }
 
   Object.entries(node.fields).forEach(([key, value]) => {
