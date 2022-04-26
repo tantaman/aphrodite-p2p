@@ -28,16 +28,13 @@ import { Context } from "context";
 import { Changeset, CreateChangeset, UpdateChangeset } from "./Changeset";
 import { ID_of } from "./ID";
 import { Node } from "./Node";
-import * as y from "yjs";
+
+type Task = () => void;
 
 type CombinedChangesets = Map<ID_of<any>, Changeset<any, any>>;
 export type Transaction = {
   readonly changes: Map<ID_of<any>, Changeset<any, any>>;
-  readonly nodes: Map<ID_of<any>, Node<any>>;
-};
-
-export type YOrigin = {
-  nodes: Node<any>[];
+  readonly nodes: Map<ID_of<any>, Node<any> | null>;
 };
 
 export class ChangesetExecutor {
@@ -52,7 +49,11 @@ export class ChangesetExecutor {
     // Merge multiple updates to the same object into a single changeset
     const combined = this._combineChangesets();
     this.removeNoops(combined);
-    return this.apply(combined);
+    const [transaction, notifications] = this.apply(combined);
+
+    // TODO: process notifications
+
+    return transaction;
   }
 
   private removeNoops(changesets: CombinedChangesets) {
@@ -65,34 +66,49 @@ export class ChangesetExecutor {
     }
   }
 
-  private apply(changesets: CombinedChangesets): Transaction {
-    return {
-      changes: changesets,
-      nodes: new Map(),
-    };
+  private apply(changesets: CombinedChangesets): [Transaction, Set<Task>] {
+    const nodes = new Map();
+    const notifications: Set<Task> = new Set();
+    for (const [id, cs] of changesets) {
+      const [model, notifBatch] = this.processChanges(cs);
+      nodes.set(id, model);
+      for (const notif of notifBatch) {
+        notifications.add(notif);
+      }
+    }
+    return [
+      {
+        changes: changesets,
+        nodes,
+      },
+      notifications,
+    ];
   }
 
   private processChanges(
-    doc: y.Doc,
     changeset: Changeset<any, any>
-  ): Node<any> | null {
+  ): [Node<any> | null, Set<() => void>] {
     switch (changeset.type) {
-      case "create":
+      case "create": {
         const ret = changeset.definition._createFromData(
           this.context,
           changeset.updates as any
         );
         cache.set(ret._id, ret);
-        ret._update(changeset);
-        return ret;
-      case "update":
-        changeset.node._update(changeset);
-        return changeset.node;
-      case "delete":
+        const [_, notifs] = ret._merge(changeset.updates);
+        return [ret, notifs];
+      }
+      case "update": {
+        const [_, notifs] = changeset.node._merge(changeset.updates);
+        return [changeset.node, notifs];
+      }
+      case "delete": {
         const removed = cache.remove(changeset._id);
         const node = changeset.node || removed;
+        // TODO: destroy notifications
         node.destory();
-        return null;
+        return [null, new Set()];
+      }
     }
   }
 
