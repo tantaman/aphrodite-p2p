@@ -1,23 +1,38 @@
-import { id } from "../ID";
+import { id, ID_of } from "../ID";
 import cache from "../cache";
 import { RequiredNodeData } from "../Schema";
-import { Node } from "../Node";
+import { Doc, Node } from "../Node";
 import { Context } from "context";
 
 class TestNode implements Node<RequiredNodeData> {
+  readonly _id: ID_of<this>;
+  readonly _parentDocId: ID_of<Doc<any>> | null;
+
+  constructor(id: ID_of<any>) {
+    this._id = id;
+    this._parentDocId = null;
+  }
+
   _destroy(): void {}
-  getContext(): Context {
+  _merge(
+    newData: Partial<RequiredNodeData>
+  ): [Partial<RequiredNodeData>, Set<() => void>] {
+    throw new Error();
+  }
+  get _context(): Context {
     throw new Error();
   }
 }
 test("The cache lets me set things", () => {
-  expect(() => cache.set(id<TestNode>("sdf"), new TestNode())).not.toThrow();
+  const myId = id<TestNode>("sdf");
+  expect(() => cache.set(myId, new TestNode(myId))).not.toThrow();
 });
 
 test("The cache lets me get things", () => {
-  const toSet = new TestNode();
-  cache.set(id<TestNode>("xdf"), toSet);
-  const gotten = cache.get(id<TestNode>("xdf"));
+  const theId = id<TestNode>("xdf");
+  const toSet = new TestNode(theId);
+  cache.set(theId, toSet);
+  const gotten = cache.get(theId);
   expect(toSet).toBe(gotten);
 });
 
@@ -28,11 +43,12 @@ test("The cache lets me get things", () => {
 // });
 
 test("The cache lets me remove things", () => {
-  const node = new TestNode();
-  cache.set(id<TestNode>("aff"), node);
-  const removed = cache.remove(id<TestNode>("aff"));
+  const theId = id<TestNode>("aff");
+  const node = new TestNode(theId);
+  cache.set(theId, node);
+  const removed = cache.remove(theId);
   expect(node).toBe(removed);
-  expect(cache.get(id<TestNode>("aff"))).toBeNull();
+  expect(cache.get(theId)).toBeNull();
 });
 
 afterAll(() => {

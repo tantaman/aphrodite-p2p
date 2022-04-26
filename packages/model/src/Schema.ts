@@ -9,7 +9,7 @@ import {
 } from "./Mutator";
 import { Context } from "./context";
 import { ID_of } from "./ID";
-import { Doc, ReplicatedNode } from "./Node";
+import { Doc, Node, ReplicatedNode } from "./Node";
 
 export function stringField(): string {
   throw new Error();
@@ -88,12 +88,7 @@ export type NodeInstanceType<
   readonly [key in keyof E as Querify<
     key extends string ? key : never
   >]: () => QueryInstanceType<E[key]["dest"], NodeInstanceType<T, E>>;
-} & {
-  getContext(): Context;
-  get _id(): ID_of<NodeInstanceType<T, E>>;
-  get _parentDocId(): ID_of<Doc<any>> | null;
-  _destroy();
-};
+} & Node<NodeInternalDataType<T>>;
 
 type QueryInstanceType<
   T extends NodeSchema,

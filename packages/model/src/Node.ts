@@ -4,8 +4,6 @@ import { ID_of } from "./ID";
 import * as Y from "yjs";
 import { invariant } from "@aphro/lf-error";
 import { RequiredNodeData } from "./Schema";
-import { YOrigin } from "ChangesetExecutor";
-import { CreateChangeset, UpdateChangeset } from "Changeset";
 type Disposer = () => void;
 function typedKeys<T>(o: T): (keyof T)[] {
   // @ts-ignore
@@ -20,23 +18,25 @@ Not persisted or synced (ephemeral)
 */
 
 export interface Node<T extends RequiredNodeData> {
+  readonly _context: Context;
+  readonly _id: ID_of<this>;
+  readonly _parentDocId: ID_of<Doc<any>> | null;
   _destroy(): void;
-  getContext(): Context;
+  _merge(newData: Partial<T>): [Partial<T>, Set<() => void>];
 }
 
 abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
   private subscriptions: Set<() => void> = new Set();
   private keyedSubscriptions: Map<keyof T, Set<() => void>> = new Map();
   protected _data: T;
-  protected readonly _context: Context;
+  public readonly _context: Context;
+
+  abstract readonly _id: ID_of<this>;
+  abstract readonly _parentDocId: ID_of<Doc<any>> | null;
 
   constructor(context: Context, data: T) {
     this._context = context;
     this._data = data;
-  }
-
-  getContext(): Context {
-    return this._context;
   }
 
   _destroy() {
@@ -63,9 +63,7 @@ abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
     return () => keys.forEach((k) => this.keyedSubscriptions.get(k)?.delete(c));
   }
 
-  _merge(
-    newData: Partial<T> | undefined
-  ): [Partial<T>, Set<() => void>] | null {
+  _merge(newData: Partial<T>): [Partial<T>, Set<() => void>] {
     const lastData = this._data;
     this._data = {
       ...this._data,
@@ -124,23 +122,6 @@ abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
   }
 }
 
-// All just nodes but change based on storage adapter?
-// interface PersistedNode {}
-// interface ReplicatedNode {}
-// interface Node {}
-
-// We do need a schema for the model so we know what
-// to create within our map... right?
-//
-// We want a schema because we're going to create the model from
-// some data originally.
-// Not from some Y data...
-// From some off-disk data.
-//
-// Mutators will change `y` as well?
-// Probs all changes should go thru y
-// and then be synced into the model
-// which is then synced into storage
 export abstract class ReplicatedNode<
   T extends RequiredNodeData
 > extends NodeBase<T> {
@@ -167,15 +148,6 @@ export abstract class ReplicatedNode<
   _d(): T {
     return this._data;
   }
-
-  // _update(changeset: CreateChangeset<any, any> | UpdateChangeset<any, any>) {
-  //   Object.entries(changeset.updates).forEach(([key, value]) => {
-  //     if (key === "_id" || key === "_parentDoc") {
-  //       return;
-  //     }
-  //     this.ymap.set(key, value);
-  //   });
-  // }
 
   _destroy() {
     super._destroy();
@@ -220,10 +192,6 @@ export abstract class ReplicatedNode<
     }
   };
 }
-
-// TODO:
-// export abstract class OnePerSessionNode?
-// OncePerSession being to handle things like AppState for the local person.
 
 /**
  * A Doc is a Node that handles it own replication.
@@ -314,3 +282,16 @@ export abstract class Doc<
  * But can we got some write time validation that the thinger
  * was placed into a doc?
  */
+
+// _update(changeset: CreateChangeset<any, any> | UpdateChangeset<any, any>) {
+//   Object.entries(changeset.updates).forEach(([key, value]) => {
+//     if (key === "_id" || key === "_parentDoc") {
+//       return;
+//     }
+//     this.ymap.set(key, value);
+//   });
+// }
+
+// TODO:
+// export abstract class OnePerSessionNode?
+// OncePerSession being to handle things like AppState for the local person.

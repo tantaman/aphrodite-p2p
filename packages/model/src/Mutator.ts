@@ -78,7 +78,7 @@ export class UpdateMutationBuilder<
   // esp if we allow updating non field edges from here.
 
   constructor(private readonly node: NodeInstanceType<N, E>) {
-    super(node.getContext());
+    super(node._context);
   }
 
   toChangeset(): UpdateChangeset<N, E> {

@@ -29,13 +29,6 @@ test("create mutation builder changeset generation", () => {
   expect(changeset.updates.name).toEqual("foo");
 });
 
-class TestNode implements Node<RequiredNodeData> {
-  _destroy(): void {}
-  getContext(): Context {
-    return context;
-  }
-}
-
 test("update mutation builder", () => {
   const Deck = DefineNode(DeckSchema, DeckEdges);
   const deck = Deck.create(context).set({ name: "foo" }).save();
