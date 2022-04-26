@@ -28,18 +28,23 @@ export interface Node<T extends RequiredNodeData> {
   subscribeTo(keys: (keyof T)[], c: () => void): Disposer;
 }
 
-abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
+export abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
   private subscriptions: Set<() => void> = new Set();
   private keyedSubscriptions: Map<keyof T, Set<() => void>> = new Map();
   protected _data: T;
   public readonly _context: Context;
 
-  abstract readonly _id: ID_of<this>;
-  abstract readonly _parentDocId: ID_of<Doc<any>> | null;
-
   constructor(context: Context, data: T) {
     this._context = context;
     this._data = data;
+  }
+
+  get _id(): ID_of<this> {
+    return this._data._id;
+  }
+
+  get _parentDocId(): ID_of<Doc<any>> | null {
+    return this._data._parentDocId;
   }
 
   _destroy() {
@@ -125,83 +130,10 @@ abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
   }
 }
 
-export abstract class ReplicatedNode<
-  T extends RequiredNodeData
-> extends NodeBase<T> {
-  private ymap: Y.Map<FieldType>;
-  private ydoc: Y.Doc;
-
-  constructor(context: Context, data: T) {
-    super(context, data);
-    this.ydoc = context.doc(data._parentDocId);
-    this.ymap = this.ydoc.getMap(data._id);
-
-    // TODO We should observe y weakly...
-    this.ymap.observeDeep(this.yObserver);
-  }
-
-  get _id(): ID_of<this> {
-    return this._data._id;
-  }
-
-  get _parentDocId(): ID_of<Doc<any>> | null {
-    return this._data._parentDocId;
-  }
-
-  _d(): T {
-    return this._data;
-  }
-
-  _destroy() {
-    super._destroy();
-    this.ymap.unobserveDeep(this.yObserver);
-    // @ts-ignore
-    this.ymap = null;
-    // @ts-ignore
-    this.ydoc = null;
-  }
-
-  // If we have a replicated string sub-entry...
-  // will this process that correctly?
-  // or we need to deeply observe?
-  private yObserver = (events: Y.YEvent<any>[], tx: Y.Transaction) => {
-    const mutableData = { ...this._data };
-    console.log(tx.origin);
-    for (const e of events) {
-      // TODO: this could be a path to a nested structure in the map
-      e.changes.keys.forEach((change, key) =>
-        this.processYChange(mutableData, change, key)
-      );
-    }
-    // compare to see if we should set
-  };
-
-  private processYChange = (
-    mutableData: T,
-    change: {
-      action: "add" | "update" | "delete";
-      oldValue: any;
-    },
-    key: string
-  ) => {
-    switch (change.action) {
-      case "add":
-      case "update":
-        mutableData[key] = this.ymap.get(key);
-        break;
-      case "delete":
-        delete mutableData[key];
-        break;
-    }
-  };
-}
-
 /**
  * A Doc is a Node that handles it own replication.
  */
-export abstract class Doc<
-  T extends RequiredNodeData
-> extends ReplicatedNode<T> {
+export abstract class Doc<T extends RequiredNodeData> extends NodeBase<T> {
   // This'll create a new doc which is put into the root doc via id.
   constructor(context: Context, data: T) {
     invariant(

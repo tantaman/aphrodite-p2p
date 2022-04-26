@@ -9,7 +9,7 @@ import {
 } from "./Mutator";
 import { Context } from "./context";
 import { ID_of } from "./ID";
-import { Doc, Node, ReplicatedNode } from "./Node";
+import { Doc, Node, NodeBase } from "./Node";
 
 export function stringField(): string {
   throw new Error();
@@ -134,7 +134,7 @@ export function DefineNode<N extends NodeSchema, E extends NodeEdgesSchema>(
   edges: E
 ): NodeDefinition<N, E> {
   let definition: NodeDefinition<N, E>;
-  class ConcreteNode extends ReplicatedNode<NodeInternalDataType<N>> {
+  class ConcreteNode extends NodeBase<NodeInternalDataType<N>> {
     readonly _internal = {
       definition,
     } as const;

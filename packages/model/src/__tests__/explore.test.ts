@@ -1,7 +1,7 @@
 import { UpdateMutationBuilder } from "../Mutator";
 import context from "../context";
 import { id } from "../ID";
-import { ReplicatedNode } from "../Node";
+import { NodeBase } from "../Node";
 import root from "../root";
 import { RequiredNodeData } from "../Schema";
 import { viewer } from "../viewer";
@@ -9,7 +9,7 @@ import cache from "../cache";
 
 const ctx = context(viewer(id("sdf")), root());
 test("basic replicated node", () => {
-  class MyNode extends ReplicatedNode<
+  class MyNode extends NodeBase<
     {
       name: string;
     } & RequiredNodeData
@@ -25,7 +25,7 @@ test("basic replicated node", () => {
 
   new UpdateMutationBuilder(node as any).set({ name: "bar" }).save();
   // map.set("name", "bar");
-  console.log(node._d());
+  // console.log(node._d());
 });
 
 afterAll(() => cache.destroy());
