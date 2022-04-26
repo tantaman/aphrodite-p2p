@@ -30,7 +30,7 @@ import { ID_of } from "./ID";
 import { Node } from "./Node";
 import { Task } from "NotifyQueue";
 
-type CombinedChangesets = Map<ID_of<any>, Changeset<any, any>>;
+export type CombinedChangesets = Map<ID_of<any>, Changeset<any, any>>;
 export type Transaction = {
   readonly changes: Map<ID_of<any>, Changeset<any, any>>;
   readonly nodes: Map<ID_of<any>, Node<any> | null>;
