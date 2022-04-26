@@ -1,6 +1,6 @@
 import { Context } from "./context";
 import { ID_of } from "./ID";
-import { invariant } from "@aphro/lf-error";
+import { invariant } from "@strut/utils";
 import {
   NodeDefinition,
   NodeEdgesSchema,

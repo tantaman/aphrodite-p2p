@@ -8,7 +8,7 @@
 //
 //
 
-import { invariant } from "@aphro/lf-error";
+import { invariant } from "@strut/utils";
 import { RequiredNodeData } from "./Schema";
 import { ID_of } from "./ID";
 import { Node } from "./Node";

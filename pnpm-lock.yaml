@@ -38,31 +38,20 @@ importers:
     devDependencies:
       typescript: 4.6.3
 
-  packages/error:
-    specifiers:
-      nanoid: ^3.3.3
-      typescript: ^4.6.3
-      yjs: ^13.5.34
-    dependencies:
-      nanoid: 3.3.3
-      yjs: 13.5.34
-    devDependencies:
-      typescript: 4.6.3
-
   packages/model:
     specifiers:
-      '@aphro/lf-error': workspace:*
       '@babel/core': ^7.17.9
       '@babel/preset-env': ^7.16.11
       '@strut/events': workspace:*
+      '@strut/utils': workspace:*
       '@types/jest': ^27.4.1
       jest: ^27.5.1
       nanoid: ^3.3.3
       typescript: ^4.6.3
       yjs: ^13.5.34
     dependencies:
-      '@aphro/lf-error': link:../error
       '@strut/events': link:../../git-modules/mono/typescript/packages/events
+      '@strut/utils': link:../../git-modules/mono/typescript/packages/utils
       nanoid: 3.3.3
       yjs: 13.5.34
     devDependencies:

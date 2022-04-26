@@ -4,8 +4,8 @@
   "main": "lib/index.js",
   "type": "module",
   "dependencies": {
-    "@aphro/lf-error": "workspace:*",
     "@strut/events": "workspace:*",
+    "@strut/utils": "workspace:*",
     "nanoid": "^3.3.3",
     "yjs": "^13.5.34"
   },
