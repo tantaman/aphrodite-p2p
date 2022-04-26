@@ -28,6 +28,9 @@ class TestNode implements Node<RequiredNodeData> {
   subscribeTo(keys: (keyof RequiredNodeData)[], c: () => void): () => void {
     return () => {};
   }
+  _isNoop(updates: Partial<RequiredNodeData>): boolean {
+    return false;
+  }
 }
 
 test("The cache lets me set things", () => {

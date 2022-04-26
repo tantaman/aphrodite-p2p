@@ -29,8 +29,12 @@ import { Changeset } from "./Changeset";
 import { ID_of } from "./ID";
 import { Node } from "./Node";
 import { Task } from "NotifyQueue";
+import { NodeEdgesSchema, NodeSchema } from "Schema";
 
-export type CombinedChangesets = Map<ID_of<any>, Changeset<any, any>>;
+export type CombinedChangesets = Map<
+  ID_of<any>,
+  Changeset<NodeSchema, NodeEdgesSchema>
+>;
 export type Transaction = {
   readonly changes: Map<ID_of<any>, Changeset<any, any>>;
   readonly nodes: Map<ID_of<any>, Node<any> | null>;

@@ -23,6 +23,7 @@ export interface Node<T extends RequiredNodeData> {
   readonly _parentDocId: ID_of<Doc<any>> | null;
   _destroy(): void;
   _merge(newData: Partial<T>): [Partial<T>, Set<() => void>];
+  _isNoop(updates: Partial<T>): boolean;
 
   subscribe(c: () => void): Disposer;
   subscribeTo(keys: (keyof T)[], c: () => void): Disposer;
