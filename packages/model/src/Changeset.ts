@@ -5,15 +5,15 @@ import {
   NodeInstanceType,
   NodeInternalDataType,
   NodeSchema,
-  NodeSchemaEdges,
+  NodeEdgesSchema,
 } from "./Schema";
 
-export type Changeset<N extends NodeSchema, E extends NodeSchemaEdges> =
+export type Changeset<N extends NodeSchema, E extends NodeEdgesSchema> =
   | DeleteChangeset<N, E>
   | UpdateChangeset<N, E>
   | CreateChangeset<N, E>;
 
-export type CreateChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
+export type CreateChangeset<N extends NodeSchema, E extends NodeEdgesSchema> = {
   type: "create";
   _id: ID_of<any>;
   _parentDocId: ID_of<Doc<any>> | null;
@@ -21,7 +21,7 @@ export type CreateChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
   definition: NodeDefinition<N, E>;
 };
 
-export type UpdateChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
+export type UpdateChangeset<N extends NodeSchema, E extends NodeEdgesSchema> = {
   type: "update";
   _id: ID_of<any>;
   _parentDocId: ID_of<Doc<any>> | null;
@@ -29,7 +29,7 @@ export type UpdateChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
   node: NodeInstanceType<N, E>;
 };
 
-export type DeleteChangeset<N extends NodeSchema, E extends NodeSchemaEdges> = {
+export type DeleteChangeset<N extends NodeSchema, E extends NodeEdgesSchema> = {
   type: "delete";
   _id: ID_of<any>;
   _parentDocId: ID_of<Doc<any>> | null;

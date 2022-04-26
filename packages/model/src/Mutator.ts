@@ -11,7 +11,7 @@ import {
   NodeInstanceType,
   NodeInternalDataType,
   NodeSchema,
-  NodeSchemaEdges,
+  NodeEdgesSchema,
   RequiredNodeData,
 } from "./Schema";
 import { ChangesetExecutor } from "./ChangesetExecutor";
@@ -32,14 +32,14 @@ import { ChangesetExecutor } from "./ChangesetExecutor";
 
 export interface MutationBuilder<
   N extends NodeSchema,
-  E extends NodeSchemaEdges
+  E extends NodeEdgesSchema
 > {
   toChangeset(): Changeset<N, E>;
 }
 
 abstract class CreateOrUpdateMutationBuilder<
   N extends NodeSchema,
-  E extends NodeSchemaEdges
+  E extends NodeEdgesSchema
 > implements MutationBuilder<N, E>
 {
   // ToChangeset would need to figure out how to handle
@@ -72,7 +72,7 @@ abstract class CreateOrUpdateMutationBuilder<
 
 export class UpdateMutationBuilder<
   N extends NodeSchema,
-  E extends NodeSchemaEdges
+  E extends NodeEdgesSchema
 > extends CreateOrUpdateMutationBuilder<N, E> {
   // TODO: might need edge information...
   // esp if we allow updating non field edges from here.
@@ -94,7 +94,7 @@ export class UpdateMutationBuilder<
 
 export class CreateMutationBuilder<
   N extends NodeSchema,
-  E extends NodeSchemaEdges
+  E extends NodeEdgesSchema
 > extends CreateOrUpdateMutationBuilder<N, E> {
   constructor(
     context: Context,
@@ -124,7 +124,7 @@ export class CreateMutationBuilder<
 // To destroy it.
 export class DeleteMutationBuilder<
   N extends NodeSchema,
-  E extends NodeSchemaEdges
+  E extends NodeEdgesSchema
 > implements MutationBuilder<N, E>
 {
   constructor(private node: NodeInstanceType<N, E>) {}

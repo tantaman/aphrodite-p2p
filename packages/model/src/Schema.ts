@@ -72,7 +72,7 @@ export type NodeSchema = {
   };
 };
 
-export type NodeSchemaEdges = {
+export type NodeEdgesSchema = {
   [key: string]: Edge<NodeSchema>;
 };
 
@@ -81,7 +81,7 @@ type Filterify<T extends string> = `where${Capitalize<T>}`;
 
 export type NodeInstanceType<
   T extends NodeSchema,
-  E extends NodeSchemaEdges
+  E extends NodeEdgesSchema
 > = {
   readonly [key in keyof T["fields"]]: ReturnType<T["fields"][key]>;
 } & {
@@ -112,7 +112,7 @@ interface Query<T> {
   gen(): Promise<T[]>;
 }
 
-export type NodeDefinition<N extends NodeSchema, E extends NodeSchemaEdges> = {
+export type NodeDefinition<N extends NodeSchema, E extends NodeEdgesSchema> = {
   schema: {
     node: N;
     edges: E;
@@ -129,7 +129,7 @@ export type NodeDefinition<N extends NodeSchema, E extends NodeSchemaEdges> = {
 // And can we map the type to generate a typed instance...
 // e.g., queryEdge
 // getField
-export function DefineNode<N extends NodeSchema, E extends NodeSchemaEdges>(
+export function DefineNode<N extends NodeSchema, E extends NodeEdgesSchema>(
   node: N,
   edges: E
 ): NodeDefinition<N, E> {
