@@ -3,14 +3,21 @@ import nodeStorage from "./nodeStorage";
 import { NodeEdgesSchema, NodeSchema, PersistConfig } from "./Schema";
 import { CombinedChangesets } from "./ChangesetExecutor";
 import TransactionLog from "./TransactionLog";
+import { Context } from "./context";
+import { Disposer } from "@strut/events";
 
 export default class Persistor {
-  constructor(private log: TransactionLog) {
-    // should we debounce this?
-    this.log.observe(this._onLogChange);
+  private unobserve: Disposer;
+  constructor(private context: Context, private log: TransactionLog) {
+    // TODO: should we debounce this?
+    // We don't technically have to persist on every change.
+    // We can accumulate and re-merge changes in memory
+    // Before persisting.
+    // Or always write entire model and only write latest.
+    this.unobserve = this.log.observe(this._onLogChange);
   }
 
-  _onLogChange = (changes: CombinedChangesets) => {
+  private _onLogChange = (changes: CombinedChangesets) => {
     const batches: Map<string, Changeset<NodeSchema, NodeEdgesSchema>[]> =
       new Map();
     for (let [id, changeset] of changes) {
@@ -39,7 +46,7 @@ export default class Persistor {
 
     const writes: Promise<void>[] = [];
     for (const batch of batches.values()) {
-      writes.push(nodeStorage.writeBatch(batch));
+      writes.push(nodeStorage.writeBatch(this.context, batch));
     }
 
     // TODO: how will we handle recovery?
@@ -48,6 +55,15 @@ export default class Persistor {
     // also -- should we allow these changesets to take place in DB transactions?
     Promise.all(writes).catch((err) => console.error(err));
   };
+
+  // Debounced `onLogChange`
+  // which would deconflict what it has received
+  // Deletes override all.
+  // Create record must be retained. (insert vs set)
+
+  dispose() {
+    this.unobserve();
+  }
 }
 
 function createKey(persistConfig: PersistConfig): string {

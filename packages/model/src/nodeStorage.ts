@@ -18,6 +18,7 @@ export default {
   },
 
   async writeBatch(
+    context: Context,
     changes: Changeset<NodeSchema, NodeEdgesSchema>[]
   ): Promise<void> {
     throw new Error("Writes to storage not yet available");
