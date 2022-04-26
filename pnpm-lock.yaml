@@ -20,6 +20,24 @@ importers:
       vite: 2.9.5
       vitest: 0.2.8
 
+  git-modules/mono/typescript/packages/counter:
+    specifiers:
+      '@strut/utils': 0.0.1
+    dependencies:
+      '@strut/utils': link:../utils
+
+  git-modules/mono/typescript/packages/events:
+    specifiers:
+      typescript: ^4.6.2
+    devDependencies:
+      typescript: 4.6.3
+
+  git-modules/mono/typescript/packages/utils:
+    specifiers:
+      typescript: ^4.6.2
+    devDependencies:
+      typescript: 4.6.3
+
   packages/error:
     specifiers:
       nanoid: ^3.3.3
@@ -36,17 +54,15 @@ importers:
       '@aphro/lf-error': workspace:*
       '@babel/core': ^7.17.9
       '@babel/preset-env': ^7.16.11
+      '@strut/events': workspace:*
       '@types/jest': ^27.4.1
-      '@types/lodash': ^4.14.182
       jest: ^27.5.1
-      lodash: ^4.17.21
       nanoid: ^3.3.3
       typescript: ^4.6.3
       yjs: ^13.5.34
     dependencies:
       '@aphro/lf-error': link:../error
-      '@types/lodash': 4.14.182
-      lodash: 4.17.21
+      '@strut/events': link:../../git-modules/mono/typescript/packages/events
       nanoid: 3.3.3
       yjs: 13.5.34
     devDependencies:
@@ -55,12 +71,6 @@ importers:
       '@types/jest': 27.4.1
       jest: 27.5.1
       typescript: 4.6.3
-
-  packages/mutator:
-    specifiers: {}
-
-  packages/persistor:
-    specifiers: {}
 
 packages:
 
@@ -1559,10 +1569,6 @@ packages:
       jest-matcher-utils: 27.5.1
       pretty-format: 27.5.1
     dev: true
-
-  /@types/lodash/4.14.182:
-    resolution: {integrity: sha512-/THyiqyQAP9AfARo4pF+aCGcyiQ94tX/Is2I7HofNRqoYLgN1PBoOWu2/zTA5zMxzP5EFutMtWtGAFRKUe961Q==}
-    dev: false
 
   /@types/node/17.0.25:
     resolution: {integrity: sha512-wANk6fBrUwdpY4isjWrKTufkrXdu1D2YHCot2fD/DfWxF5sMrVSA+KN7ydckvaTCh0HiqX9IVl0L5/ZoXg5M7w==}
@@ -3271,6 +3277,7 @@ packages:
 
   /lodash/4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+    dev: true
 
   /loupe/2.3.4:
     resolution: {integrity: sha512-OvKfgCC2Ndby6aSTREl5aCCPTNIzlDfQZvZxNUrBrihDhL3xcrYegTblhmEiCrg2kKQz4XsFIaemE5BF4ybSaQ==}

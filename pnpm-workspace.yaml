@@ -1,6 +1,7 @@
 packages:
+  - "git-modules/mono/typescript/packages/events"
+  - "git-modules/mono/typescript/packages/counter"
+  - "git-modules/mono/typescript/packages/utils"
   - "packages/model"
-  - "packages/mutator"
-  - "packages/persistor"
   - "packages/error"
   - "examples/todo-app"

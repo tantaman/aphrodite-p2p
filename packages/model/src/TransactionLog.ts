@@ -1,6 +1,5 @@
 import Observable from "@strut/events";
 import type { CombinedChangesets, Transaction } from "./ChangesetExecutor";
-import { Task } from "./NotifyQueue.js";
 
 type Node = {
   transaction: Transaction;
