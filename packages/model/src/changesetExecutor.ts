@@ -25,11 +25,10 @@
 
 import cache from "./cache";
 import { Context } from "context";
-import { Changeset, CreateChangeset, UpdateChangeset } from "./Changeset";
+import { Changeset } from "./Changeset";
 import { ID_of } from "./ID";
 import { Node } from "./Node";
-
-type Task = () => void;
+import { Task } from "NotifyQueue";
 
 type CombinedChangesets = Map<ID_of<any>, Changeset<any, any>>;
 export type Transaction = {
@@ -105,8 +104,8 @@ export class ChangesetExecutor {
       case "delete": {
         const removed = cache.remove(changeset._id);
         const node = changeset.node || removed;
-        // TODO: destroy notifications
-        node.destory();
+        // TODO: delete notifications?
+        node._destory();
         return [null, new Set()];
       }
     }

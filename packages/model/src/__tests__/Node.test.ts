@@ -2,6 +2,7 @@ import { DefineNode, replicatedStringField, stringField } from "../Schema";
 import createContext from "../context";
 import { viewer } from "../viewer";
 import root from "../root";
+import cache from "../cache";
 
 const SlideDefinition = {
   storage: {
@@ -59,6 +60,10 @@ test("Read fields on the created node", () => {
     name: "Test",
   });
   expect(deck.name).toEqual("Test");
+});
+
+afterAll(() => {
+  cache.destroy();
 });
 
 /*

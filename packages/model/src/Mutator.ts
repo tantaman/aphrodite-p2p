@@ -64,9 +64,9 @@ abstract class CreateOrUpdateMutationBuilder<
   abstract toChangeset(): UpdateChangeset<N, E> | CreateChangeset<N, E>;
 
   save(): NodeInstanceType<N, E> {
-    return new ChangesetExecutor(this.context, [
-      this.toChangeset(),
-    ]).execute()[0] as NodeInstanceType<N, E>;
+    const cs = this.toChangeset();
+    const tx = new ChangesetExecutor(this.context, [cs]).execute();
+    return tx.nodes.get(cs._id) as NodeInstanceType<N, E>;
   }
 }
 

@@ -1,3 +1,4 @@
+import cache from "../cache";
 import { DefineNode, stringField } from "../Schema";
 
 test("Defining a node", () => {
@@ -18,4 +19,8 @@ test("Defining a node", () => {
   expect(Deck.schema).not.toBeNull();
   expect(Deck.schema.node).toEqual(DeckDefinition);
   expect(Deck.schema.edges).toEqual(DeckEdges);
+});
+
+afterAll(() => {
+  cache.destroy();
 });
