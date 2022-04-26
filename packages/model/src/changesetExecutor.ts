@@ -28,8 +28,9 @@ import { Context } from "context";
 import { Changeset, CreateChangeset, UpdateChangeset } from "./Changeset";
 import { ID_of } from "./ID";
 import { Node } from "./Node";
-import * as lodash from "lodash";
 import * as y from "yjs";
+
+type MergedChangesets = Map<ID_of<any>, Changeset<any, any>>;
 
 export type YOrigin = {
   nodes: Node<any>[];
@@ -46,33 +47,28 @@ export class ChangesetExecutor {
   execute(): Node<any>[] {
     // Merge multiple updates to the same object into a single changeset
     const merged = this._mergeChangesets();
-    // this.removeNoops(merged);
+    this.removeNoops(merged);
     return this.apply(merged);
   }
 
-  private apply(changesets: Changeset<any, any>[]): Node<any>[] {
-    // collect all that use the same doc
-    const grouped = lodash.groupBy(changesets, (cs) => cs._parentDocId);
-    const origin: YOrigin = {
-      nodes: [],
-    };
-    Object.entries(grouped).forEach(([parentDocId, changesets]) => {
-      const doc = this.context.doc(parentDocId as ID_of<any>);
-      doc.transact((tx) => {
-        changesets.forEach((cs) => {
-          const result = this.processChanges(doc, cs);
-          if (result != null) {
-            tx.origin.nodes.push(result);
-          }
-        });
-      }, origin);
-    });
+  private removeNoops(changesets: MergedChangesets) {
+    for (const [id, changeset] of changesets) {
+      if (changeset.type === "update") {
+        if (changeset.node._isNoop(changeset.updates)) {
+          changesets.delete(id);
+        }
+      }
+    }
+  }
 
+  private apply(changesets: MergedChangesets): Node<any>[] {
+    // collect all that use the same doc
     // Now the real question is how do we get the final transactions out
     // so we can push them onto our log?
     // given y will not notify observers synchronously
     // we need them in the log for persistence concerns.
-    return origin.nodes;
+    // return origin.nodes;
+    return [];
   }
 
   private processChanges(
@@ -87,11 +83,9 @@ export class ChangesetExecutor {
         );
         cache.set(ret._id, ret);
         ret._update(changeset);
-        // this.updateY(doc, changeset);
         return ret;
       case "update":
         changeset.node._update(changeset);
-        // this.updateY(doc, changeset);
         return changeset.node;
       case "delete":
         const removed = cache.remove(changeset._id);
@@ -101,26 +95,8 @@ export class ChangesetExecutor {
     }
   }
 
-  // private updateY(
-  //   doc: y.Doc,
-  //   changeset: CreateChangeset<any, any> | UpdateChangeset<any, any>
-  // ) {
-  //   console.log(changeset._id);
-  //   const ymap = doc.getMap(changeset._id);
-  //   console.log(ymap);
-  //   // TODO: we need access to the schema to know
-  //   // if any of these sub-types are replicated types (e.g., maps)
-  //   Object.entries(changeset.updates).forEach(([key, value]) => {
-  //     if (key === "_id" || key === "_parentDoc") {
-  //       return;
-  //     }
-  //     console.log(key, value);
-  //     ymap.set(key, value);
-  //   });
-  // }
-
-  _mergeChangesets(): Changeset<any, any>[] {
-    const merged: Map<ID_of<any>, Changeset<any, any>> = new Map();
+  _mergeChangesets(): MergedChangesets {
+    const merged: MergedChangesets = new Map();
     for (const changeset of this.changesets) {
       const existing = merged.get(changeset._id);
 
@@ -160,7 +136,7 @@ export class ChangesetExecutor {
       });
     }
 
-    return [...merged.values()];
+    return merged;
   }
 
   // Maybe we should also ignore changesets that don't actually change anything?

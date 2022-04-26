@@ -63,7 +63,7 @@ abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
     return () => keys.forEach((k) => this.keyedSubscriptions.get(k)?.delete(c));
   }
 
-  protected merge(
+  _merge(
     newData: Partial<T> | undefined
   ): [Partial<T>, Set<() => void>] | null {
     const lastData = this._data;
@@ -71,10 +71,6 @@ abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
       ...this._data,
       ...newData,
     };
-    let castLast = lastData as any;
-    if (castLast.id !== undefined) {
-      castLast.id = undefined;
-    }
 
     let unchangedKeys = new Set();
     if (newData != null) {
@@ -93,6 +89,12 @@ abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
         : undefined
     );
     return [lastData, notifications];
+  }
+
+  _isNoop(updates: Partial<T>) {
+    return Object.entries(updates).every(
+      (entry) => this._data[entry[0]] === entry[1]
+    );
   }
 
   private gatherNotifications(changedKeys?: (keyof T)[]): Set<() => void> {
@@ -166,14 +168,14 @@ export abstract class ReplicatedNode<
     return this._data;
   }
 
-  _update(changeset: CreateChangeset<any, any> | UpdateChangeset<any, any>) {
-    Object.entries(changeset.updates).forEach(([key, value]) => {
-      if (key === "_id" || key === "_parentDoc") {
-        return;
-      }
-      this.ymap.set(key, value);
-    });
-  }
+  // _update(changeset: CreateChangeset<any, any> | UpdateChangeset<any, any>) {
+  //   Object.entries(changeset.updates).forEach(([key, value]) => {
+  //     if (key === "_id" || key === "_parentDoc") {
+  //       return;
+  //     }
+  //     this.ymap.set(key, value);
+  //   });
+  // }
 
   _destroy() {
     super._destroy();
