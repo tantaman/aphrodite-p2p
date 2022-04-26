@@ -13,7 +13,11 @@ import cache from "../cache";
 const SlideDefinition = {
   storage: {
     replicated: true,
-    persisted: true,
+    persisted: {
+      engine: "dexie",
+      db: "test",
+      tablish: "test",
+    },
   },
   fields: {
     name: stringField,
@@ -24,7 +28,11 @@ const SlideDefinition = {
 const DeckDefinition = {
   storage: {
     replicated: true,
-    persisted: true,
+    persisted: {
+      engine: "dexie",
+      db: "test",
+      tablish: "test",
+    },
   },
   fields: {
     name: stringField,
@@ -42,7 +50,11 @@ const DeckEdges = {
 const TestModelDefinition = {
   storage: {
     replicated: true,
-    persisted: true,
+    persisted: {
+      engine: "dexie",
+      db: "test",
+      tablish: "test",
+    },
   },
   fields: {
     name: stringField,

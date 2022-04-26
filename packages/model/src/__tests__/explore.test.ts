@@ -12,7 +12,11 @@ import { commit } from "../commit";
 const DeckSchema = {
   storage: {
     replicated: true,
-    persisted: true,
+    persisted: {
+      engine: "dexie",
+      db: "test",
+      tablish: "test",
+    },
   },
   fields: {
     name: stringField,
@@ -22,7 +26,11 @@ const DeckSchema = {
 const ComponentSchema = {
   storage: {
     replicated: true,
-    persisted: true,
+    persisted: {
+      engine: "dexie",
+      db: "test",
+      tablish: "test",
+    },
   },
   fields: {
     type: stringField,
@@ -34,7 +42,11 @@ const ComponentSchema = {
 const SlideSchema = {
   storage: {
     replicated: true,
-    persisted: true,
+    persisted: {
+      engine: "dexie",
+      db: "test",
+      tablish: "test",
+    },
   },
   fields: {
     order: numberField,

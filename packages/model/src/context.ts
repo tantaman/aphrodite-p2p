@@ -1,6 +1,6 @@
 import { ID_of } from "./ID";
 import { Doc } from "./Node";
-import { Root } from "./root";
+import root, { Root } from "./root";
 import { Viewer } from "./viewer";
 import * as Y from "yjs";
 
@@ -34,5 +34,25 @@ export default function context(viewer: Viewer, root: Root): Context {
 
       return subDoc;
     },
+  };
+}
+
+let _defaultContext: Context | null = null;
+export function defaultContext(viewer: Viewer): Context {
+  if (_defaultContext != null) {
+    return newFrom(_defaultContext, { viewer });
+  }
+
+  _defaultContext = context(viewer, root());
+  return _defaultContext;
+}
+
+export function newFrom(
+  oldContext: Context,
+  newValues: Partial<Context>
+): Context {
+  return {
+    ...oldContext,
+    ...newValues,
   };
 }

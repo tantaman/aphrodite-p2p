@@ -5,7 +5,11 @@ test("Defining a node", () => {
   const DeckDefinition = {
     storage: {
       replicated: true,
-      persisted: true,
+      persisted: {
+        engine: "dexie",
+        db: "test",
+        tablish: "test",
+      },
     },
     fields: {
       name: stringField,

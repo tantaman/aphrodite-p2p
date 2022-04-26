@@ -1,4 +1,3 @@
-import { Node } from "../Node";
 import createContext, { Context } from "../context";
 import { ID_of } from "../ID";
 import root from "../root";
@@ -9,7 +8,11 @@ import cache from "../cache";
 const DeckSchema = {
   storage: {
     replicated: true,
-    persisted: true,
+    persisted: {
+      engine: "dexie",
+      db: "test",
+      tablish: "test",
+    },
   },
   fields: {
     name: stringField,

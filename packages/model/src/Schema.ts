@@ -75,7 +75,11 @@ type JunctionEdge<TSrc extends NodeSchema, TDest extends NodeSchema> = {
 export type NodeSchema = {
   storage: {
     replicated: boolean;
-    persisted: boolean;
+    persisted?: {
+      engine: "dexie" | "sqlite";
+      db: string;
+      tablish: string;
+    };
   };
   fields: {
     [key: string]: SchemaFieldType;
