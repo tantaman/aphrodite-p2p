@@ -22,6 +22,12 @@ class TestNode implements Node<RequiredNodeData> {
   get _context(): Context {
     throw new Error();
   }
+  subscribe(c: () => void): () => void {
+    return () => {};
+  }
+  subscribeTo(keys: (keyof RequiredNodeData)[], c: () => void): () => void {
+    return () => {};
+  }
 }
 
 test("The cache lets me set things", () => {

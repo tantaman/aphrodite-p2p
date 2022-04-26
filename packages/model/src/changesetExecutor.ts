@@ -50,7 +50,12 @@ export class ChangesetExecutor {
     this.removeNoops(combined);
     const [transaction, notifications] = this.apply(combined);
 
-    // TODO: process notifications
+    // TODO: Should we do this tick or next tick?
+    setTimeout(() => {
+      for (const n of notifications) {
+        n();
+      }
+    }, 0);
 
     return transaction;
   }

@@ -23,6 +23,9 @@ export interface Node<T extends RequiredNodeData> {
   readonly _parentDocId: ID_of<Doc<any>> | null;
   _destroy(): void;
   _merge(newData: Partial<T>): [Partial<T>, Set<() => void>];
+
+  subscribe(c: () => void): Disposer;
+  subscribeTo(keys: (keyof T)[], c: () => void): Disposer;
 }
 
 abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {

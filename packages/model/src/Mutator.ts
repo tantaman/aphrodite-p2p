@@ -104,11 +104,15 @@ export class CreateMutationBuilder<
   }
 
   toChangeset(): CreateChangeset<N, E> {
+    const _id = nanoid() as any;
     return {
       type: "create",
-      updates: this.updates,
+      updates: {
+        ...this.updates,
+        _id,
+      },
       definition: this.definition,
-      _id: nanoid() as any,
+      _id,
       // TODO: make user set parent? fatal on lack of parent?
       // TODO: run whole object validation rules here?
       _parentDocId: null,
