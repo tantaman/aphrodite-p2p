@@ -62,12 +62,6 @@ export class ChangesetExecutor {
   }
 
   private apply(changesets: CombinedChangesets): Node<any>[] {
-    // collect all that use the same doc
-    // Now the real question is how do we get the final transactions out
-    // so we can push them onto our log?
-    // given y will not notify observers synchronously
-    // we need them in the log for persistence concerns.
-    // return origin.nodes;
     return [];
   }
 
