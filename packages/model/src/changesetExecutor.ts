@@ -28,22 +28,28 @@ import { Context } from "context";
 import { Changeset } from "./Changeset";
 import { ID_of } from "./ID";
 import { Node } from "./Node";
-import { Task } from "NotifyQueue";
-import { NodeEdgesSchema, NodeSchema } from "Schema";
+import { Task } from "./NotifyQueue";
+import { NodeEdgesSchema, NodeSchema, RequiredNodeData } from "./Schema";
 
 export type CombinedChangesets = Map<
-  ID_of<any>,
+  ID_of<Node<RequiredNodeData>>,
   Changeset<NodeSchema, NodeEdgesSchema>
 >;
 export type Transaction = {
-  readonly changes: Map<ID_of<any>, Changeset<any, any>>;
-  readonly nodes: Map<ID_of<any>, Node<any> | null>;
+  readonly changes: Map<
+    ID_of<Node<RequiredNodeData>>,
+    Changeset<NodeSchema, NodeEdgesSchema>
+  >;
+  readonly nodes: Map<
+    ID_of<Node<RequiredNodeData>>,
+    Node<RequiredNodeData> | null
+  >;
 };
 
 export class ChangesetExecutor {
   constructor(
     private context: Context,
-    private changesets: Changeset<any, any>[]
+    private changesets: Changeset<NodeSchema, NodeEdgesSchema>[]
   ) {}
 
   // Ideally we return the transaction list...
@@ -94,8 +100,8 @@ export class ChangesetExecutor {
   }
 
   private processChanges(
-    changeset: Changeset<any, any>
-  ): [Node<any> | null, Set<() => void>] {
+    changeset: Changeset<NodeSchema, NodeEdgesSchema>
+  ): [Node<RequiredNodeData> | null, Set<() => void>] {
     switch (changeset.type) {
       case "create": {
         const ret = changeset.definition._createFromData(
