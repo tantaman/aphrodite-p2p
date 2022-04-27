@@ -1,3 +1,9 @@
+---
+sidebar_position: 3
+---
+
+# Updating Nodes & Edges
+
 Mutators are used like so --
 ```typescript
 const person = Person.create(context).set({
