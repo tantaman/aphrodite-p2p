@@ -1,0 +1,9 @@
+- Track re-creates of previously deleted things (e.g., because undo) via Causal Length Set CRDT (crr paper)
+- Implement hybrid logical clocks
+- Put created and modified time on rows stamped with HLCs
+- Implement syncing
+- Enable integrity rules to roll back via new write violating syncs
+  - e.g., dangling edges / pointing to deleted stuff
+- Incorporate AbsurdSQL for storage
+- Implement query layer (take from Aphrodite classic)
+- 
