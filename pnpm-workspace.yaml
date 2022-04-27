@@ -3,5 +3,5 @@ packages:
   - "git-modules/mono/typescript/packages/counter"
   - "git-modules/mono/typescript/packages/utils"
   - "packages/model"
-  - "packages/error"
+  - "packages/website"
   - "examples/todo-app"
