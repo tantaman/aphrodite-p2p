@@ -1,6 +1,6 @@
 import { Changeset } from "./Changeset";
 import nodeStorage from "./nodeStorage";
-import { NodeEdgesSchema, NodeSchema, PersistConfig } from "./Schema";
+import { NodeSchema, PersistConfig } from "./Schema";
 import { CombinedChangesets } from "./ChangesetExecutor";
 import TransactionLog from "./TransactionLog";
 import { Context } from "./context";

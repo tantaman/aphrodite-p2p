@@ -1,11 +1,6 @@
 import { id, ID_of } from "../ID";
 import cache from "../cache";
-import {
-  NodeDefinition,
-  NodeEdgesSchema,
-  NodeSchema,
-  RequiredNodeData,
-} from "../Schema";
+import { NodeDefinition, NodeSchema, RequiredNodeData } from "../Schema";
 import { Doc, Node } from "../Node";
 import { Context } from "context";
 

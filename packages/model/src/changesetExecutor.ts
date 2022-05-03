@@ -29,7 +29,7 @@ import { Changeset } from "./Changeset";
 import { ID_of } from "./ID";
 import { Node } from "./Node";
 import { Task } from "./NotifyQueue";
-import { NodeEdgesSchema, NodeSchema, RequiredNodeData } from "./Schema";
+import { NodeSchema, RequiredNodeData } from "./Schema";
 import ImmutableNodeMap, { MutableNodeMap } from "./NodeMap";
 
 export type CombinedChangesets = Map<

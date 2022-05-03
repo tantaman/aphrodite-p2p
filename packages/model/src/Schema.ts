@@ -86,11 +86,9 @@ export type NodeSchema = {
   fields: () => {
     [key: string]: SchemaFieldType;
   };
-  edges: () => NodeEdgesSchema;
-};
-
-export type NodeEdgesSchema = {
-  [key: string]: Edge<NodeSchema>;
+  edges: () => {
+    [key: string]: Edge<NodeSchema>;
+  };
 };
 
 type Querify<T extends string> = `query${Capitalize<T>}`;

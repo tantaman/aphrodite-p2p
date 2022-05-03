@@ -1,12 +1,7 @@
 import { Context } from "./context";
 import { ID_of } from "./ID";
 import { invariant } from "@strut/utils";
-import {
-  NodeDefinition,
-  NodeEdgesSchema,
-  NodeSchema,
-  RequiredNodeData,
-} from "./Schema";
+import { NodeDefinition, NodeSchema, RequiredNodeData } from "./Schema";
 type Disposer = () => void;
 function typedKeys<T>(o: T): (keyof T)[] {
   // @ts-ignore
