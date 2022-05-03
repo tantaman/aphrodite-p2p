@@ -70,6 +70,11 @@ const DeckEdges = {
   },
 } as const;
 
+const Foo = {
+  fields: () => {},
+  edges: () => {},
+};
+
 const Deck = DefineNode(DeckSchema, DeckEdges);
 const Slide = DefineNode(SlideSchema, SlideEdges);
 const Component = DefineNode(ComponentSchema, {});

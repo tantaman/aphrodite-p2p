@@ -83,7 +83,7 @@ export type NodeSchema = {
     replicated: boolean;
     persisted?: PersistConfig;
   };
-  fields: {
+  fields: () => {
     [key: string]: SchemaFieldType;
   };
 };
@@ -99,7 +99,9 @@ export type NodeInstanceType<
   T extends NodeSchema,
   E extends NodeEdgesSchema
 > = {
-  readonly [key in keyof T["fields"]]: ReturnType<T["fields"][key]>;
+  readonly [key in keyof ReturnType<T["fields"]>]: ReturnType<
+    ReturnType<T["fields"]>[key]
+  >;
 } & {
   readonly [key in keyof E as Querify<
     key extends string ? key : never
@@ -110,7 +112,7 @@ type QueryInstanceType<
   T extends NodeSchema,
   N extends NodeInstanceType<any, any>
 > = {
-  readonly [key in keyof T["fields"] as Filterify<
+  readonly [key in keyof ReturnType<T["fields"]> as Filterify<
     key extends string ? key : never
   >]: () => QueryInstanceType<T, N>;
 } & Query<N>;
@@ -121,7 +123,9 @@ export type RequiredNodeData = {
 };
 
 export type NodeInternalDataType<T extends NodeSchema> = {
-  readonly [key in keyof T["fields"]]: ReturnType<T["fields"][key]>;
+  readonly [key in keyof ReturnType<T["fields"]>]: ReturnType<
+    ReturnType<T["fields"]>[key]
+  >;
 } & RequiredNodeData;
 
 interface Query<T> {
