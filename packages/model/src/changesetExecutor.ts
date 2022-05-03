@@ -34,20 +34,17 @@ import ImmutableNodeMap, { MutableNodeMap } from "./NodeMap";
 
 export type CombinedChangesets = Map<
   ID_of<Node<RequiredNodeData>>,
-  Changeset<NodeSchema, NodeEdgesSchema>
+  Changeset<NodeSchema>
 >;
 export type Transaction = {
-  readonly changes: Map<
-    ID_of<Node<RequiredNodeData>>,
-    Changeset<NodeSchema, NodeEdgesSchema>
-  >;
+  readonly changes: Map<ID_of<Node<RequiredNodeData>>, Changeset<NodeSchema>>;
   readonly nodes: ImmutableNodeMap;
 };
 
 export class ChangesetExecutor {
   constructor(
     private context: Context,
-    private changesets: Changeset<NodeSchema, NodeEdgesSchema>[]
+    private changesets: Changeset<NodeSchema>[]
   ) {}
 
   // Ideally we return the transaction list...
@@ -98,7 +95,7 @@ export class ChangesetExecutor {
   }
 
   private processChanges(
-    changeset: Changeset<NodeSchema, NodeEdgesSchema>
+    changeset: Changeset<NodeSchema>
   ): [Node<RequiredNodeData> | null, Set<() => void>] {
     switch (changeset.type) {
       case "create": {

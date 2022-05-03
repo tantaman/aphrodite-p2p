@@ -11,7 +11,6 @@ import {
   NodeInstanceType,
   NodeInternalDataType,
   NodeSchema,
-  NodeEdgesSchema,
   RequiredNodeData,
 } from "./Schema";
 import { ChangesetExecutor } from "./ChangesetExecutor";
@@ -31,17 +30,12 @@ import { id, ID_of } from "./ID";
 // a non-persisted type would have its events ignored in the
 // log tailer of persistence.
 
-export interface MutationBuilder<
-  N extends NodeSchema,
-  E extends NodeEdgesSchema
-> {
-  toChangeset(): Changeset<N, E>;
+export interface MutationBuilder<N extends NodeSchema> {
+  toChangeset(): Changeset<N>;
 }
 
-abstract class CreateOrUpdateMutationBuilder<
-  N extends NodeSchema,
-  E extends NodeEdgesSchema
-> implements MutationBuilder<N, E>
+abstract class CreateOrUpdateMutationBuilder<N extends NodeSchema>
+  implements MutationBuilder<N>
 {
   // ToChangeset would need to figure out how to handle
   // replicated strings...
@@ -62,27 +56,26 @@ abstract class CreateOrUpdateMutationBuilder<
     return this;
   }
 
-  abstract toChangeset(): UpdateChangeset<N, E> | CreateChangeset<N, E>;
+  abstract toChangeset(): UpdateChangeset<N> | CreateChangeset<N>;
 
-  save(): NodeInstanceType<N, E> {
+  save(): NodeInstanceType<N> {
     const cs = this.toChangeset();
     const tx = new ChangesetExecutor(this.context, [cs]).execute();
-    return tx.nodes.get(cs._id) as NodeInstanceType<N, E>;
+    return tx.nodes.get(cs._id) as NodeInstanceType<N>;
   }
 }
 
 export class UpdateMutationBuilder<
-  N extends NodeSchema,
-  E extends NodeEdgesSchema
-> extends CreateOrUpdateMutationBuilder<N, E> {
+  N extends NodeSchema
+> extends CreateOrUpdateMutationBuilder<N> {
   // TODO: might need edge information...
   // esp if we allow updating non field edges from here.
 
-  constructor(private readonly node: NodeInstanceType<N, E>) {
+  constructor(private readonly node: NodeInstanceType<N>) {
     super(node._context);
   }
 
-  toChangeset(): UpdateChangeset<N, E> {
+  toChangeset(): UpdateChangeset<N> {
     return {
       type: "update",
       updates: this.updates,
@@ -94,17 +87,16 @@ export class UpdateMutationBuilder<
 }
 
 export class CreateMutationBuilder<
-  N extends NodeSchema,
-  E extends NodeEdgesSchema
-> extends CreateOrUpdateMutationBuilder<N, E> {
+  N extends NodeSchema
+> extends CreateOrUpdateMutationBuilder<N> {
   constructor(
     context: Context,
-    private readonly definition: NodeDefinition<N, E>
+    private readonly definition: NodeDefinition<N>
   ) {
     super(context);
   }
 
-  toChangeset(): CreateChangeset<N, E> {
+  toChangeset(): CreateChangeset<N> {
     const _id = id(nanoid());
     return {
       type: "create",
@@ -113,7 +105,7 @@ export class CreateMutationBuilder<
         _id,
       },
       definition: this.definition,
-      _id: _id as ID_of<NodeInstanceType<N, E>>,
+      _id: _id as ID_of<NodeInstanceType<N>>,
       // TODO: make user set parent? fatal on lack of parent?
       // TODO: run whole object validation rules here?
       _parentDocId: null,
@@ -123,14 +115,12 @@ export class CreateMutationBuilder<
 
 // You should prob have a ref to the model...
 // To destroy it.
-export class DeleteMutationBuilder<
-  N extends NodeSchema,
-  E extends NodeEdgesSchema
-> implements MutationBuilder<N, E>
+export class DeleteMutationBuilder<N extends NodeSchema>
+  implements MutationBuilder<N>
 {
-  constructor(private node: NodeInstanceType<N, E>) {}
+  constructor(private node: NodeInstanceType<N>) {}
 
-  toChangeset(): DeleteChangeset<N, E> {
+  toChangeset(): DeleteChangeset<N> {
     return {
       type: "delete",
       node: this.node,

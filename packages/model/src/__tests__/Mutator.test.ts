@@ -18,12 +18,12 @@ const DeckSchema = {
     ({
       name: stringField,
     } as const),
+  edges: () => ({}),
 } as const;
-const DeckEdges = {};
 
 const context = createContext(viewer("123" as ID_of<Viewer>), root());
 test("create mutation builder changeset generation", () => {
-  const Deck = DefineNode(DeckSchema, DeckEdges);
+  const Deck = DefineNode(DeckSchema);
 
   const changeset = Deck.create(context).set({ name: "foo" }).toChangeset();
   expect(changeset.type).toBe("create");
@@ -34,7 +34,7 @@ test("create mutation builder changeset generation", () => {
 });
 
 test("update mutation builder", () => {
-  const Deck = DefineNode(DeckSchema, DeckEdges);
+  const Deck = DefineNode(DeckSchema);
   const deck = Deck.create(context).set({ name: "foo" }).save();
 
   const updated = Deck.update(deck).set({ name: "bar" }).save();

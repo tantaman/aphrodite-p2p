@@ -24,6 +24,7 @@ const SlideDefinition = {
       name: stringField,
       content: replicatedStringField,
     } as const),
+  edges: () => ({}),
 } as const;
 
 const DeckDefinition = {
@@ -39,14 +40,14 @@ const DeckDefinition = {
     ({
       name: stringField,
     } as const),
-} as const;
-
-const DeckEdges = {
-  slides: {
-    type: "foreign",
-    field: "deckId",
-    dest: SlideDefinition,
-  },
+  edges: () =>
+    ({
+      slides: {
+        type: "foreign",
+        field: "deckId",
+        dest: SlideDefinition,
+      },
+    } as const),
 } as const;
 
 const TestModelDefinition = {
@@ -63,10 +64,11 @@ const TestModelDefinition = {
       name: stringField,
       age: numberField,
     } as const),
+  edges: () => ({}),
 } as const;
-const TestModel = DefineNode(TestModelDefinition, {});
+const TestModel = DefineNode(TestModelDefinition);
 
-const Deck = DefineNode(DeckDefinition, DeckEdges);
+const Deck = DefineNode(DeckDefinition);
 const context = createContext(viewer(1 as any), root());
 
 test("creating a node", () => {

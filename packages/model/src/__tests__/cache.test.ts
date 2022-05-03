@@ -36,7 +36,7 @@ class TestNode implements Node<RequiredNodeData> {
   _isNoop(updates: Partial<RequiredNodeData>): boolean {
     return false;
   }
-  get _definition(): NodeDefinition<NodeSchema, NodeEdgesSchema> {
+  get _definition(): NodeDefinition<NodeSchema> {
     throw new Error();
   }
 }

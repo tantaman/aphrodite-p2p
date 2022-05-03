@@ -86,6 +86,7 @@ export type NodeSchema = {
   fields: () => {
     [key: string]: SchemaFieldType;
   };
+  edges: () => NodeEdgesSchema;
 };
 
 export type NodeEdgesSchema = {
@@ -95,23 +96,20 @@ export type NodeEdgesSchema = {
 type Querify<T extends string> = `query${Capitalize<T>}`;
 type Filterify<T extends string> = `where${Capitalize<T>}`;
 
-export type NodeInstanceType<
-  T extends NodeSchema,
-  E extends NodeEdgesSchema
-> = {
+export type NodeInstanceType<T extends NodeSchema> = {
   readonly [key in keyof ReturnType<T["fields"]>]: ReturnType<
     ReturnType<T["fields"]>[key]
   >;
 } & {
-  readonly [key in keyof E as Querify<
+  readonly [key in keyof ReturnType<T["edges"]> as Querify<
     key extends string ? key : never
-  >]: () => QueryInstanceType<E[key]["dest"], NodeInstanceType<T, E>>;
+  >]: () => QueryInstanceType<
+    ReturnType<T["edges"]>[key]["dest"],
+    NodeInstanceType<T>
+  >;
 } & Node<NodeInternalDataType<T>>;
 
-type QueryInstanceType<
-  T extends NodeSchema,
-  N extends NodeInstanceType<any, any>
-> = {
+type QueryInstanceType<T extends NodeSchema, N extends NodeInstanceType<T>> = {
   readonly [key in keyof ReturnType<T["fields"]> as Filterify<
     key extends string ? key : never
   >]: () => QueryInstanceType<T, N>;
@@ -132,32 +130,26 @@ interface Query<T> {
   gen(): Promise<T[]>;
 }
 
-export type NodeDefinition<N extends NodeSchema, E extends NodeEdgesSchema> = {
-  schema: {
-    node: N;
-    edges: E;
-  };
+export type NodeDefinition<N extends NodeSchema> = {
+  schema: N;
   _createFromData: (
     context: Context,
     data: NodeInternalDataType<N>
-  ) => NodeInstanceType<N, E>;
-  create(context: Context): CreateMutationBuilder<N, E>;
+  ) => NodeInstanceType<N>;
+  create(context: Context): CreateMutationBuilder<N>;
   read(
     context: Context,
-    id: ID_of<NodeInstanceType<N, E>>
-  ): Promise<NodeInstanceType<N, E>>;
-  update(node: NodeInstanceType<N, E>): UpdateMutationBuilder<N, E>;
-  delete(node: NodeInstanceType<N, E>): DeleteMutationBuilder<N, E>;
+    id: ID_of<NodeInstanceType<N>>
+  ): Promise<NodeInstanceType<N>>;
+  update(node: NodeInstanceType<N>): UpdateMutationBuilder<N>;
+  delete(node: NodeInstanceType<N>): DeleteMutationBuilder<N>;
 };
 
 // And can we map the type to generate a typed instance...
 // e.g., queryEdge
 // getField
-export function DefineNode<N extends NodeSchema, E extends NodeEdgesSchema>(
-  node: N,
-  edges: E
-): NodeDefinition<N, E> {
-  let definition: NodeDefinition<N, E>;
+export function DefineNode<N extends NodeSchema>(node: N): NodeDefinition<N> {
+  let definition: NodeDefinition<N>;
   class ConcreteNode extends NodeBase<NodeInternalDataType<N>> {
     readonly _definition = definition;
   }
@@ -171,29 +163,26 @@ export function DefineNode<N extends NodeSchema, E extends NodeEdgesSchema>(
   });
 
   definition = {
-    schema: {
-      node,
-      edges,
-    },
+    schema: node,
 
-    create(context: Context): CreateMutationBuilder<N, E> {
+    create(context: Context): CreateMutationBuilder<N> {
       return new CreateMutationBuilder(context, definition);
     },
 
     async read(
       context: Context,
-      id: ID_of<NodeInstanceType<N, E>>
-    ): Promise<NodeInstanceType<N, E>> {
+      id: ID_of<NodeInstanceType<N>>
+    ): Promise<NodeInstanceType<N>> {
       return await nodeStorage.readOne(context, definition, id);
     },
 
     // queryAll ?
 
-    update(node: NodeInstanceType<N, E>): UpdateMutationBuilder<N, E> {
+    update(node: NodeInstanceType<N>): UpdateMutationBuilder<N> {
       return new UpdateMutationBuilder(node);
     },
 
-    delete(node: NodeInstanceType<N, E>): DeleteMutationBuilder<N, E> {
+    delete(node: NodeInstanceType<N>): DeleteMutationBuilder<N> {
       return new DeleteMutationBuilder(node);
     },
 

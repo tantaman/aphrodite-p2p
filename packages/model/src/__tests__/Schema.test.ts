@@ -15,15 +15,15 @@ test("Defining a node", () => {
       ({
         name: stringField,
       } as const),
+    edges: () => ({}),
   } as const;
-  const DeckEdges = {};
 
-  const Deck = DefineNode(DeckDefinition, DeckEdges);
+  const Deck = DefineNode(DeckDefinition);
 
   expect(Deck._createFromData).not.toBeNull();
   expect(Deck.schema).not.toBeNull();
-  expect(Deck.schema.node).toEqual(DeckDefinition);
-  expect(Deck.schema.edges).toEqual(DeckEdges);
+  expect(Deck.schema).toEqual(DeckDefinition);
+  expect(Deck.schema.edges).toEqual({});
 });
 
 afterAll(() => {

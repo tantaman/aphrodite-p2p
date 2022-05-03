@@ -22,6 +22,14 @@ const DeckSchema = {
     ({
       name: stringField,
     } as const),
+  edges: () =>
+    ({
+      slides: {
+        type: "foreign",
+        field: "deckId",
+        dest: SlideSchema,
+      },
+    } as const),
 } as const;
 
 const ComponentSchema = {
@@ -39,6 +47,7 @@ const ComponentSchema = {
       content: stringField,
       slideId: idField,
     } as const),
+  edges: () => ({}),
 } as const;
 
 const SlideSchema = {
@@ -55,27 +64,19 @@ const SlideSchema = {
       order: numberField,
       deckId: idField,
     } as const),
+  edges: () =>
+    ({
+      components: {
+        type: "foreign",
+        field: "slideId",
+        dest: ComponentSchema,
+      },
+    } as const),
 } as const;
 
-const SlideEdges = {
-  components: {
-    type: "foreign",
-    field: "slideId",
-    dest: ComponentSchema,
-  },
-} as const;
-
-const DeckEdges = {
-  slides: {
-    type: "foreign",
-    field: "deckId",
-    dest: SlideSchema,
-  },
-} as const;
-
-const Deck = DefineNode(DeckSchema, DeckEdges);
-const Slide = DefineNode(SlideSchema, SlideEdges);
-const Component = DefineNode(ComponentSchema, {});
+const Deck = DefineNode(DeckSchema);
+const Slide = DefineNode(SlideSchema);
+const Component = DefineNode(ComponentSchema);
 
 const ctx = context(viewer(id("me")), root());
 test("explore", () => {

@@ -1,11 +1,11 @@
 import { ChangesetExecutor } from "./ChangesetExecutor";
 import { Changeset } from "./Changeset";
 import { Context } from "./context";
-import { NodeEdgesSchema, NodeSchema } from "Schema";
+import { NodeSchema } from "Schema";
 
 export function commit(
   context: Context,
-  changesets: Changeset<NodeSchema, NodeEdgesSchema>[]
+  changesets: Changeset<NodeSchema>[]
   // log: TransactionLog | TransactionLog[]
 ) {
   return new ChangesetExecutor(

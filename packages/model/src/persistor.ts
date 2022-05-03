@@ -18,15 +18,14 @@ export default class Persistor {
   }
 
   private _onLogChange = (changes: CombinedChangesets) => {
-    const batches: Map<string, Changeset<NodeSchema, NodeEdgesSchema>[]> =
-      new Map();
+    const batches: Map<string, Changeset<NodeSchema>[]> = new Map();
     for (let [id, changeset] of changes) {
       // Skip non-persisted models
       let nodeSchema: NodeSchema;
       if (changeset.type === "create") {
-        nodeSchema = changeset.definition.schema.node;
+        nodeSchema = changeset.definition.schema;
       } else {
-        nodeSchema = changeset.node._definition.schema.node;
+        nodeSchema = changeset.node._definition.schema;
       }
 
       if (!nodeSchema.storage.persisted) {

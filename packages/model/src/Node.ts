@@ -24,7 +24,7 @@ export interface Node<T extends RequiredNodeData> {
   readonly _context: Context;
   readonly _id: ID_of<this>;
   readonly _parentDocId: ID_of<Doc<RequiredNodeData>> | null;
-  readonly _definition: NodeDefinition<NodeSchema, NodeEdgesSchema>;
+  readonly _definition: NodeDefinition<NodeSchema>;
   _destroy(): void;
   _merge(newData: Partial<T>): [Partial<T>, Set<() => void>];
   _isNoop(updates: Partial<T>): boolean;
@@ -38,10 +38,7 @@ export abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
   private keyedSubscriptions: Map<keyof T, Set<() => void>> = new Map();
   protected _data: T;
   public readonly _context: Context;
-  public abstract readonly _definition: NodeDefinition<
-    NodeSchema,
-    NodeEdgesSchema
-  >;
+  public abstract readonly _definition: NodeDefinition<NodeSchema>;
 
   constructor(context: Context, data: T) {
     this._context = context;
