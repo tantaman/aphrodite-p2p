@@ -19,10 +19,11 @@ const SlideDefinition = {
       tablish: "test",
     },
   },
-  fields: {
-    name: stringField,
-    content: replicatedStringField,
-  },
+  fields: () =>
+    ({
+      name: stringField,
+      content: replicatedStringField,
+    } as const),
 } as const;
 
 const DeckDefinition = {
@@ -34,9 +35,10 @@ const DeckDefinition = {
       tablish: "test",
     },
   },
-  fields: {
-    name: stringField,
-  },
+  fields: () =>
+    ({
+      name: stringField,
+    } as const),
 } as const;
 
 const DeckEdges = {
@@ -56,10 +58,11 @@ const TestModelDefinition = {
       tablish: "test",
     },
   },
-  fields: {
-    name: stringField,
-    age: numberField,
-  },
+  fields: () =>
+    ({
+      name: stringField,
+      age: numberField,
+    } as const),
 } as const;
 const TestModel = DefineNode(TestModelDefinition, {});
 

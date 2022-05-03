@@ -11,9 +11,10 @@ test("Defining a node", () => {
         tablish: "test",
       },
     },
-    fields: {
-      name: stringField,
-    },
+    fields: () =>
+      ({
+        name: stringField,
+      } as const),
   } as const;
   const DeckEdges = {};
 

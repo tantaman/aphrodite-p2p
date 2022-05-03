@@ -10,7 +10,7 @@ import {
 import { Context } from "./context";
 import { ID_of } from "./ID";
 import { Doc, Node, NodeBase } from "./Node";
-import nodeStorage from "nodeStorage";
+import nodeStorage from "./nodeStorage";
 
 export function stringField(): string {
   throw new Error();
@@ -162,7 +162,7 @@ export function DefineNode<N extends NodeSchema, E extends NodeEdgesSchema>(
     readonly _definition = definition;
   }
 
-  Object.entries(node.fields).forEach(([key, value]) => {
+  Object.entries(node.fields()).forEach(([key, value]) => {
     Object.defineProperty(ConcreteNode.prototype, key, {
       get() {
         return this._data[key];

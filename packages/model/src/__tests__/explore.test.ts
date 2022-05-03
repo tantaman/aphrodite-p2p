@@ -18,9 +18,10 @@ const DeckSchema = {
       tablish: "test",
     },
   },
-  fields: {
-    name: stringField,
-  },
+  fields: () =>
+    ({
+      name: stringField,
+    } as const),
 } as const;
 
 const ComponentSchema = {
@@ -32,11 +33,12 @@ const ComponentSchema = {
       tablish: "test",
     },
   },
-  fields: {
-    type: stringField,
-    content: stringField,
-    slideId: idField,
-  },
+  fields: () =>
+    ({
+      type: stringField,
+      content: stringField,
+      slideId: idField,
+    } as const),
 } as const;
 
 const SlideSchema = {
@@ -48,10 +50,11 @@ const SlideSchema = {
       tablish: "test",
     },
   },
-  fields: {
-    order: numberField,
-    deckId: idField,
-  },
+  fields: () =>
+    ({
+      order: numberField,
+      deckId: idField,
+    } as const),
 } as const;
 
 const SlideEdges = {
@@ -69,11 +72,6 @@ const DeckEdges = {
     dest: SlideSchema,
   },
 } as const;
-
-const Foo = {
-  fields: () => {},
-  edges: () => {},
-};
 
 const Deck = DefineNode(DeckSchema, DeckEdges);
 const Slide = DefineNode(SlideSchema, SlideEdges);
