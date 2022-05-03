@@ -11,6 +11,7 @@ import { Context } from "./context";
 import { ID_of } from "./ID";
 import { Doc, Node, NodeBase } from "./Node";
 import nodeStorage from "./nodeStorage";
+import { upcaseAt } from "@strut/utils";
 
 export function stringField(): string {
   throw new Error();
@@ -162,6 +163,24 @@ export function DefineNode<N extends NodeSchema>(node: N): NodeDefinition<N> {
         return this._data[key];
       },
     });
+  });
+
+  Object.entries(node.edges()).forEach(([key, value]) => {
+    ConcreteNode.prototype[`query${upcaseAt(key, 0)}`] = function () {
+      // source expression and all that stuff
+      // source expression will be runtime determined
+    };
+  });
+
+  // Need to define query methods to return new queries
+
+  class ConcreteQuery {}
+
+  Object.entries(node.edges()).forEach(([key, value]) => {
+    ConcreteQuery.prototype[`query${upcaseAt(key, 0)}`] = function () {
+      // hop expression and all that stuff
+      // hop expression will be runtime determined
+    };
   });
 
   definition = {
