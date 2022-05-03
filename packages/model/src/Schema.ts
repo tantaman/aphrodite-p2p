@@ -94,24 +94,28 @@ export type NodeSchema = {
 type Querify<T extends string> = `query${Capitalize<T>}`;
 type Filterify<T extends string> = `where${Capitalize<T>}`;
 
-export type NodeInstanceType<T extends NodeSchema> = {
-  readonly [key in keyof ReturnType<T["fields"]>]: ReturnType<
-    ReturnType<T["fields"]>[key]
-  >;
-} & {
+type MakeQueryMethods<T extends NodeSchema> = {
   readonly [key in keyof ReturnType<T["edges"]> as Querify<
     key extends string ? key : never
   >]: () => QueryInstanceType<
     ReturnType<T["edges"]>[key]["dest"],
     NodeInstanceType<T>
   >;
-} & Node<NodeInternalDataType<T>>;
+};
+
+export type NodeInstanceType<T extends NodeSchema> = {
+  readonly [key in keyof ReturnType<T["fields"]>]: ReturnType<
+    ReturnType<T["fields"]>[key]
+  >;
+} & MakeQueryMethods<T> &
+  Node<NodeInternalDataType<T>>;
 
 type QueryInstanceType<T extends NodeSchema, N extends NodeInstanceType<T>> = {
   readonly [key in keyof ReturnType<T["fields"]> as Filterify<
     key extends string ? key : never
   >]: () => QueryInstanceType<T, N>;
-} & Query<N>;
+} & MakeQueryMethods<T> &
+  Query<N>;
 
 export type RequiredNodeData = {
   readonly _id: ID_of<any>;
