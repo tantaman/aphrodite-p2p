@@ -94,9 +94,8 @@ test("explore", () => {
     })
     .toChangeset();
 
-  // TODO: use a special class to preserve TS types
   const deck = commit(ctx, [deckCs, slideCs, componentCs]).nodes.get(
-    deckCs._id // <-- id should be typed here...
+    deckCs._id
   );
 });
 

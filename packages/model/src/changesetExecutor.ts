@@ -30,6 +30,7 @@ import { ID_of } from "./ID";
 import { Node } from "./Node";
 import { Task } from "./NotifyQueue";
 import { NodeEdgesSchema, NodeSchema, RequiredNodeData } from "./Schema";
+import ImmutableNodeMap, { MutableNodeMap } from "./NodeMap";
 
 export type CombinedChangesets = Map<
   ID_of<Node<RequiredNodeData>>,
@@ -40,10 +41,7 @@ export type Transaction = {
     ID_of<Node<RequiredNodeData>>,
     Changeset<NodeSchema, NodeEdgesSchema>
   >;
-  readonly nodes: Map<
-    ID_of<Node<RequiredNodeData>>,
-    Node<RequiredNodeData> | null
-  >;
+  readonly nodes: ImmutableNodeMap;
 };
 
 export class ChangesetExecutor {
@@ -81,7 +79,7 @@ export class ChangesetExecutor {
   }
 
   private apply(changesets: CombinedChangesets): [Transaction, Set<Task>] {
-    const nodes = new Map();
+    const nodes = new MutableNodeMap();
     const notifications: Set<Task> = new Set();
     for (const [id, cs] of changesets) {
       const [model, notifBatch] = this.processChanges(cs);

@@ -15,7 +15,7 @@ import {
   RequiredNodeData,
 } from "./Schema";
 import { ChangesetExecutor } from "./ChangesetExecutor";
-import { id } from "./ID";
+import { id, ID_of } from "./ID";
 
 // Validation should be applied in mutators?
 // Well field level validation, yes
@@ -113,7 +113,7 @@ export class CreateMutationBuilder<
         _id,
       },
       definition: this.definition,
-      _id,
+      _id: _id as ID_of<NodeInstanceType<N, E>>,
       // TODO: make user set parent? fatal on lack of parent?
       // TODO: run whole object validation rules here?
       _parentDocId: null,
