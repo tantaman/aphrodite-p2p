@@ -2,7 +2,6 @@ import { DefineNode, idField, numberField, stringField } from "../Schema";
 import cache from "../cache";
 import context from "../context";
 import { viewer } from "../viewer";
-import root from "../root";
 import { id } from "../ID";
 import { commit } from "../commit";
 
@@ -78,7 +77,7 @@ const Deck = DefineNode(DeckSchema);
 const Slide = DefineNode(SlideSchema);
 const Component = DefineNode(ComponentSchema);
 
-const ctx = context(viewer(id("me")), root());
+const ctx = context(viewer(id("me")));
 test("explore", () => {
   const deckCs = Deck.create(ctx)
     .set({

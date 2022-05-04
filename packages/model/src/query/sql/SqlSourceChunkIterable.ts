@@ -3,7 +3,7 @@ import specAndOpsToSQL from "./specAndOpsToSQL.js";
 import { HoistedOperations } from "./SqlSourceExpression.js";
 import { invariant, nullthrows } from "@strut/utils";
 import { NodeDefinition, NodeSchema } from "Schema.js";
-import storageType, { maybeStorageType } from "../storage/storageType.js";
+import storageType, { maybeStorageType } from "../../storage/storageType.js";
 import { Context } from "../../context";
 
 export default class SQLSourceChunkIterable<T> extends BaseChunkIterable<T> {

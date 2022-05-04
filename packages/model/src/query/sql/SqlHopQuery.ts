@@ -1,5 +1,5 @@
 import { invariant } from "@strut/utils";
-import { maybeStorageType } from "../storage/storageType.js";
+import { maybeStorageType } from "../../storage/storageType.js";
 import { EdgeSchema, NodeSchema } from "../../Schema.js";
 import { HopExpression } from "../Expression.js";
 import { HopQuery, Query } from "../Query.js";
