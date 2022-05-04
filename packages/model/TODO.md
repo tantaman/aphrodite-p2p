@@ -1,4 +1,5 @@
 # TODO
+- RM Knex given we only need to worry about sqlite and dexie for this?
   - spin up persistor?
   - spin up replicator & syncer?
 - Generate `query` methods
