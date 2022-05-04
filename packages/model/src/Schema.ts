@@ -11,8 +11,8 @@ import { Context } from "./context";
 import { ID_of } from "./ID";
 import { Doc, Node, NodeBase } from "./Node";
 import { upcaseAt } from "@strut/utils";
-import P from "query/Predicate";
-import { Query } from "query/Query";
+import P, { Predicate } from "./query/Predicate";
+import { Query } from "./query/Query";
 
 export function stringField(): string {
   throw new Error();
@@ -119,7 +119,9 @@ type QueryInstanceType<T extends NodeSchema, N extends NodeInstanceType<T>> = {
     key extends string ? key : never
   >]: () => QueryInstanceType<T, N>;
 } & MakeQueryMethods<T> &
-  Query<N>;
+  Query<N> & {
+    whereId<Tv extends ID_of<N>>(p: Predicate<Tv>);
+  };
 
 export type RequiredNodeData = {
   readonly _id: ID_of<any>;

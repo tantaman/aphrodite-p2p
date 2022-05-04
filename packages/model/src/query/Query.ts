@@ -1,15 +1,10 @@
-import { ID_of } from "ID.js";
 import { Expression, HopExpression, SourceExpression } from "./Expression.js";
 import HopPlan from "./HopPlan.js";
 import Plan, { IPlan } from "./Plan.js";
-import { Predicate } from "./Predicate.js";
 
 export interface Query<T> {
   plan(): IPlan;
   gen(): Promise<T[]>;
-  // TODO: generalize to not require `whereId` but instead go
-  // based on defined primary key in the schema
-  whereId<Tv extends ID_of<T>>(p: Predicate<Tv>);
 }
 
 abstract class BaseQuery<T> implements Query<T> {
@@ -25,7 +20,6 @@ abstract class BaseQuery<T> implements Query<T> {
   }
 
   abstract plan(): IPlan;
-  abstract whereId<Tv extends ID_of<T>>(p: Predicate<Tv>);
 }
 
 export abstract class SourceQuery<T> extends BaseQuery<T> {
