@@ -1,5 +1,5 @@
 import { Changeset } from "../mutator/Changeset";
-import nodeStorage from "./nodeStorage";
+import nodeStorage from "./writer";
 import { NodeSchema, PersistConfig } from "../Schema";
 import { CombinedChangesets } from "../mutator/ChangesetExecutor";
 import TransactionLog from "../TransactionLog";

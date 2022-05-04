@@ -25,7 +25,7 @@ export default class SQLSourceChunkIterable<T> extends BaseChunkIterable<T> {
     const persisted = nullthrows(this.spec.schema.storage.persisted);
 
     // TODO: stronger types one day
-    // e.g., exec should by parametrized and checked against T somehow.
+    // e.g., exec should be parametrized and checked against T somehow.
     // Should probably allow a namespace too?
     // also... this is pretty generic and would apply to non-sql data sources too.
     // given the actual query execution happens in the resolver.

@@ -16,10 +16,10 @@ export interface SpecificTypedDBResolver<T extends StorageType> {
 // TODO: the client should be able to configure what db types they'd like to supply
 // resolvers for
 type DBTypes = {
-  sql: SQLDB;
+  sql: SQLDBAdaptor;
 };
 
-export interface SQLDB {
+export interface SQLDBAdaptor {
   // TODO: can we get better types here?
   // From ModelSpec<T> and the projection of the query?
   // if the projection is known and the spec is known we know what the query returns.

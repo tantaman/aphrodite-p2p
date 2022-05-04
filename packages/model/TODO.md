@@ -1,9 +1,16 @@
 # TODO
-- add logs to context
   - spin up persistor?
   - spin up replicator & syncer?
 - Generate `query` methods
 - Hook `read` up to storage for point reads
+
+
+Should the resolved DB speak in terms of Changesets and QueryPlans?
+I.e., convert from those to the DB's native dialect?
+
+How does this then play with SQLSourceExpression and the like?
+-> SQLSourceExpression optimizes the plan for sql-ability then passes the optimized plan to the db which then converts
+to an actual query string.
 
 How will persistor work? Schemas are passed with changesets so this'll allow us to determine what to do.
 

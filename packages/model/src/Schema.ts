@@ -10,7 +10,7 @@ import {
 import { Context } from "./context";
 import { ID_of } from "./ID";
 import { Doc, Node, NodeBase } from "./Node";
-import nodeStorage from "./storage/nodeStorage";
+import nodeStorage from "./storage/writer";
 import { upcaseAt } from "@strut/utils";
 
 export function stringField(): string {
@@ -197,7 +197,8 @@ export function DefineNode<N extends NodeSchema>(node: N): NodeDefinition<N> {
       context: Context,
       id: ID_of<NodeInstanceType<N>>
     ): Promise<NodeInstanceType<N>> {
-      return await nodeStorage.readOne(context, definition, id);
+      // This should generate a query and go thru query layer.
+      throw new Error();
     },
 
     // queryAll ?
