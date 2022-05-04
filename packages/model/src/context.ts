@@ -1,23 +1,29 @@
 import { Viewer } from "./viewer";
 import { DBResolver } from "./storage/DBResolver";
 import { printResolver } from "./storage/DebugResolvers";
+import TransactionLog from "./TransactionLog";
 
 export type Context = {
   readonly viewer: Viewer;
   readonly dbResolver: DBResolver;
-  // cache
-  // default logs
-  // svc registry?
-  // storage resolver?
+  readonly replicationLog: TransactionLog;
+  readonly persistLog: TransactionLog;
 };
+
+const defaultReplicationLog = new TransactionLog(50);
+const defaultPersistLog = new TransactionLog(50);
 
 export default function context(
   viewer: Viewer,
-  dbResolver: DBResolver
+  dbResolver: DBResolver,
+  replicationLog: TransactionLog = defaultReplicationLog,
+  persistLog: TransactionLog = defaultPersistLog
 ): Context {
   return {
     viewer,
     dbResolver,
+    replicationLog,
+    persistLog,
   };
 }
 

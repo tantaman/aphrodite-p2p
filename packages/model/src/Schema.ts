@@ -10,7 +10,7 @@ import {
 import { Context } from "./context";
 import { ID_of } from "./ID";
 import { Doc, Node, NodeBase } from "./Node";
-import nodeStorage from "./nodeStorage";
+import nodeStorage from "./storage/nodeStorage";
 import { upcaseAt } from "@strut/utils";
 
 export function stringField(): string {
