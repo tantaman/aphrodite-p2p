@@ -10,6 +10,13 @@ export const noopResolver: DBResolver = spyResolver((_, __) => {});
 export function spyResolver(
   spy: (query: string, bindings: readonly any[]) => void
 ): DBResolver {
+  return simpleResolver(async (q, b) => spy(q, b));
+}
+
+// If everything always resolves to the same db, use this.
+export function simpleResolver(
+  impl: (query: string, bindings: readonly any[]) => Promise<any>
+): DBResolver {
   return {
     type(t: StorageType) {
       return {
@@ -17,11 +24,8 @@ export function spyResolver(
           return {
             db(db: string) {
               return {
-                async exec(
-                  query: string,
-                  bindings: readonly any[]
-                ): Promise<any> {
-                  spy(query, bindings);
+                exec(query: string, bindings: readonly any[]): Promise<any> {
+                  return impl(query, bindings);
                 },
               };
             },

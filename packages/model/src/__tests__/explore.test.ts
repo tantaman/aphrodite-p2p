@@ -4,7 +4,7 @@ import context from "../context";
 import { viewer } from "../viewer";
 import { id } from "../ID";
 import { commit } from "../mutator/commit";
-import { noopResolver } from "../storage/DebugResolvers";
+import { noopResolver } from "../storage/Resolvers";
 import PersistTailer from "../storage/PersistTailer";
 
 // TODO: incorporate fast check?

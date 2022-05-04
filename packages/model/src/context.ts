@@ -1,6 +1,6 @@
 import { Viewer } from "./viewer";
 import { DBResolver } from "./storage/DBResolver";
-import { printResolver } from "./storage/DebugResolvers";
+import { printResolver } from "./storage/Resolvers";
 import TransactionLog from "./TransactionLog";
 
 export type Context = {

@@ -1,4 +1,4 @@
-import { noopResolver } from "../../storage/DebugResolvers";
+import { noopResolver } from "../../storage/Resolvers";
 import cache from "../../cache";
 import createContext from "../../context";
 import { ID_of } from "../../ID";

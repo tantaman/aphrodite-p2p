@@ -3,7 +3,7 @@ import { ID_of } from "../../ID";
 import { DefineNode, stringField } from "../../Schema";
 import { Viewer, viewer } from "../../viewer";
 import cache from "../../cache";
-import { noopResolver } from "../../storage/DebugResolvers";
+import { noopResolver } from "../../storage/Resolvers";
 
 const DeckSchema = {
   storage: {

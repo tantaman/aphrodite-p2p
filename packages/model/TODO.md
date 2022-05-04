@@ -8,6 +8,7 @@
   - This likely means we only ever select IDs from storage then run a second
   query to actually fetch columns... based on delta with cache...
   - Can optimized based on result set size (if knonw..)
+- Example builder for integration tests?
 
 Should the resolved DB speak in terms of Changesets and QueryPlans?
 I.e., convert from those to the DB's native dialect?
