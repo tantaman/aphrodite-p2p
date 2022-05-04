@@ -1,14 +1,13 @@
 # TODO
-- RM Knex given we only need to worry about sqlite and dexie for this?
-  - spin up persistor?
-  - spin up replicator & syncer?
+- Spin up sync & replicate
+- Reactive layer
 - Generate `query` methods
-- Hook `read` up to storage for point reads
 - Wire query layer into cache layer...
   - This likely means we only ever select IDs from storage then run a second
   query to actually fetch columns... based on delta with cache...
   - Can optimized based on result set size (if knonw..)
-- Example builder for integration tests?
+- Example data builder (based on schema field examples) for integration tests?
+- Stop using nanoid given the problems it generates for indices by not being able to be monotonically increasing. Back to `SID`?
 
 Should the resolved DB speak in terms of Changesets and QueryPlans?
 I.e., convert from those to the DB's native dialect?

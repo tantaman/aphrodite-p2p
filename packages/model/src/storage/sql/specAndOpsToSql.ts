@@ -1,10 +1,17 @@
-import { HoistedOperations } from "./SqlSourceExpression.js";
+import { HoistedOperations } from "../../query/sql/SqlSourceExpression.js";
 // TODO: probably remove dependency on knex
 import knex, { Knex } from "knex";
-import { after, before, filter, orderBy, take } from "../Expression.js";
-import SQLHopExpression from "./SQLHopExpression.js";
-import { ModelFieldGetter } from "../Field.js";
+import {
+  after,
+  before,
+  filter,
+  orderBy,
+  take,
+} from "../../query/Expression.js";
+import SQLHopExpression from "../../query/sql/SQLHopExpression.js";
+import { ModelFieldGetter } from "../../query/Field.js";
 import { NodeDefinition, NodeSchema } from "../../Schema.js";
+import getKnex from "./getKnexForQueryBuilding.js";
 
 // given a model spec and hoisted operations, return the SQL query
 // TODO: maybe remove dependency on knex? Given we already have enough information to correctly
@@ -135,13 +142,4 @@ function applyHops<T extends Knex.QueryBuilder>(
   hop?: SQLHopExpression<any>
 ): T {
   return table;
-}
-
-function getKnex(spec: NodeDefinition<NodeSchema>) {
-  switch (spec.schema.storage.persisted?.engine) {
-    case "sqlite":
-      return knex({ client: "sqlite" });
-    default:
-      throw new Error("unsupported");
-  }
 }

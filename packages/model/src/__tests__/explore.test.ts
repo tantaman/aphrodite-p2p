@@ -17,7 +17,7 @@ const DeckSchema = {
     persisted: {
       engine: "sqlite",
       db: "test",
-      tablish: "test",
+      tablish: "deck",
     },
   },
   fields: () =>
@@ -40,7 +40,7 @@ const ComponentSchema = {
     persisted: {
       engine: "sqlite",
       db: "test",
-      tablish: "test",
+      tablish: "component",
     },
   },
   fields: () =>
@@ -58,7 +58,7 @@ const SlideSchema = {
     persisted: {
       engine: "sqlite",
       db: "test",
-      tablish: "test",
+      tablish: "slide",
     },
   },
   fields: () =>

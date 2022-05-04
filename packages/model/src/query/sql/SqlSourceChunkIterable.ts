@@ -1,5 +1,5 @@
 import { BaseChunkIterable } from "../ChunkIterable.js";
-import specAndOpsToSQL from "./specAndOpsToSQL.js";
+import specAndOpsToSQL from "../../storage/sql/specAndOpsToSql.js";
 import { HoistedOperations } from "./SqlSourceExpression.js";
 import { invariant, nullthrows } from "@strut/utils";
 import { NodeDefinition, NodeSchema } from "Schema.js";
