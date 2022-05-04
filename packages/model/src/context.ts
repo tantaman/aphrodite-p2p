@@ -1,12 +1,8 @@
 import { ID_of } from "./ID";
 import { Doc } from "./Node";
-import root, { Root } from "./root";
 import { Viewer } from "./viewer";
-import * as Y from "yjs";
 import { RequiredNodeData } from "./Schema";
-import { DBResolver } from "query/storage/DBResolver";
-
-type DocProvider = (parent: ID_of<Doc<RequiredNodeData>> | null) => Y.Doc;
+import { DBResolver } from "./query/storage/DBResolver";
 
 export type Context = {
   readonly viewer: Viewer;
@@ -17,34 +13,27 @@ export type Context = {
   // storage resolver?
 };
 
-export default function context(viewer: Viewer, root: Root): Context {
+export default function context(
+  viewer: Viewer,
+  dbResolver: DBResolver
+): Context {
   return {
     viewer,
-    root,
-    doc: (parent) => {
-      if (parent == null) {
-        return root.doc;
-      }
-
-      const subDocs = root.subDocs;
-      let subDoc = subDocs.get(parent);
-      if (subDoc == null) {
-        subDoc = new Y.Doc();
-        subDocs.set(parent, subDoc);
-      }
-
-      return subDoc;
-    },
+    dbResolver,
   };
 }
 
+// TODO: gut the default context.
 let _defaultContext: Context | null = null;
-export function defaultContext(viewer: Viewer): Context {
+export function defaultContext(
+  viewer: Viewer,
+  dbResolver: DBResolver
+): Context {
   if (_defaultContext != null) {
     return newFrom(_defaultContext, { viewer });
   }
 
-  _defaultContext = context(viewer, root());
+  _defaultContext = context(viewer, dbResolver);
   return _defaultContext;
 }
 

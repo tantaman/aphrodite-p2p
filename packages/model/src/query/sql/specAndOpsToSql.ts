@@ -1,4 +1,5 @@
 import { HoistedOperations } from "./SqlSourceExpression.js";
+// TODO: probably remove dependency on knex
 import knex, { Knex } from "knex";
 import { after, before, filter, orderBy, take } from "../Expression.js";
 import SQLHopExpression from "./SQLHopExpression.js";
@@ -27,6 +28,7 @@ export default function specAndOpsToSQL(
       break;
     case "model":
       // TODO: lastSpec.fields.map(t.f).join(",");
+      // b/c we select only the fields of the last model.
       table = table.select("*");
       break;
   }
