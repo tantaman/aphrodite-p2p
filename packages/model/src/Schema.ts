@@ -12,8 +12,10 @@ import { ID_of } from "./ID";
 import { Doc, Node, NodeBase } from "./Node";
 import { upcaseAt } from "@strut/utils";
 import P, { Predicate } from "./query/Predicate";
-import { Query } from "./query/Query";
-import cache from "cache";
+import { DerivedQuery, Query } from "./query/Query";
+import cache from "./cache";
+import QueryFactory from "./query/QueryFactory";
+import { modelLoad } from "query/Expression";
 
 export function stringField(): string {
   throw new Error();
@@ -177,7 +179,7 @@ export function DefineNode<N extends NodeSchema>(node: N): NodeDefinition<N> {
   // Need to define query methods to return new queries
 
   // Create the correct source query
-  class ConcreteQuery {}
+  class ConcreteQuery extends DerivedQuery<NodeInstanceType<N>> {}
 
   Object.entries(node.edges()).forEach(([key, value]) => {
     ConcreteQuery.prototype[`query${upcaseAt(key, 0)}`] = function () {
@@ -216,15 +218,20 @@ export function DefineNode<N extends NodeSchema>(node: N): NodeDefinition<N> {
     },
 
     // @ts-ignore
-    _createFromData: (context: Context, data) => {
-      return new ConcreteNode(context, data);
-    },
+    _createFromData,
   };
 
   function queryAll(
     context: Context
   ): QueryInstanceType<N, NodeInstanceType<N>> {
-    return new ConcreteQuery() as QueryInstanceType<N, NodeInstanceType<N>>;
+    return new ConcreteQuery(
+      QueryFactory.createSourceQueryFor(context, definition),
+      modelLoad(context, _createFromData)
+    ) as unknown as QueryInstanceType<N, NodeInstanceType<N>>;
+  }
+
+  function _createFromData(context: Context, data: NodeInternalDataType<N>) {
+    return new ConcreteNode(context, data);
   }
 
   return definition;

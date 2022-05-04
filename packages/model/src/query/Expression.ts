@@ -12,6 +12,7 @@ import HopPlan from "./HopPlan.js";
 import ModelLoadExpression from "./ModelLoadExpression.js";
 import { Node } from "../Node.js";
 import { RequiredNodeData } from "../Schema.js";
+import { Context } from "../context.js";
 
 export type ExpressionType =
   | "take"
@@ -120,8 +121,11 @@ export function hop<TIn, TOut>(): HopExpression<TIn, TOut> {
 export function modelLoad<
   TData extends RequiredNodeData,
   TModel extends Node<TData>
->(factory: (TData) => TModel): ModelLoadExpression<TData, TModel> {
-  return new ModelLoadExpression(factory);
+>(
+  context: Context,
+  factory: (context: Context, data: TData) => TModel
+): ModelLoadExpression<TData, TModel> {
+  return new ModelLoadExpression(context, factory);
 }
 
 /*
