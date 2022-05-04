@@ -6,6 +6,8 @@ import { NodeDefinition, NodeInstanceType, NodeSchema } from "Schema";
 import storageType from "storage/storageType";
 
 export default {
+  // Does readOne make sense? Or should this responsibility exist fully
+  // in SourceExpression?
   async readOne<N extends NodeSchema>(
     context: Context,
     definition: NodeDefinition<N>,
@@ -23,6 +25,9 @@ export default {
     throw new Error();
   },
 
+  // Expectation is that all changesets are correctly batched.
+  // I.e., they all go to the same table.
+  // Or can we not send them to many tables so long as they are all on the same db?
   async writeBatch(
     context: Context,
     changes: Changeset<NodeSchema>[]
