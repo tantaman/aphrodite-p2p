@@ -23,7 +23,7 @@ test("Defining a node", () => {
   expect(Deck._createFromData).not.toBeNull();
   expect(Deck.schema).not.toBeNull();
   expect(Deck.schema).toEqual(DeckDefinition);
-  expect(Deck.schema.edges).toEqual({});
+  expect(Deck.schema.edges()).toEqual({});
 });
 
 afterAll(() => {

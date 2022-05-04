@@ -8,7 +8,7 @@ import {
 import createContext from "../context";
 import { viewer } from "../viewer";
 import cache from "../cache";
-import { noopResolver } from "storage/DebugResolvers";
+import { noopResolver } from "../storage/DebugResolvers";
 
 const SlideDefinition = {
   storage: {

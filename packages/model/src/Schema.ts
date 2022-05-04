@@ -15,7 +15,7 @@ import P, { Predicate } from "./query/Predicate";
 import { DerivedQuery, Query } from "./query/Query";
 import cache from "./cache";
 import QueryFactory from "./query/QueryFactory";
-import { modelLoad } from "query/Expression";
+import { modelLoad } from "./query/Expression";
 
 export function stringField(): string {
   throw new Error();

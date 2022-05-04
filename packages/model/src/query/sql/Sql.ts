@@ -1,7 +1,11 @@
 class SqlClass<T> {
-  constructor(private types: ReplacementType[], private values: T[]) {}
+  constructor(
+    private types: ReplacementType[],
+    private values: T[],
+    private templateStrings: TemplateStringsArray
+  ) {}
 
-  toString(engine: "postgres" = "postgres"): string {
+  toString(engine: "postgres" | "sqlite" = "postgres"): string {
     // escape and quote values based on types.
     return "";
   }
@@ -31,15 +35,15 @@ type Types<Tuple extends [...ReplacementType[]]> = {
 export default function sql<T extends [...ReplacementType[]]>(
   s: TemplateStringsArray,
   ...types: T
-): (...values: Types<T>) => SQL {
-  return (...values) => new SqlClass(types, values);
+): (s: TemplateStringsArray, ...values: Types<T>) => SQL {
+  return (s, ...values) => new SqlClass(types, values, s);
 }
 
-const checkedFormatString = sql`SELECT * FROM ${"T"} WHERE ${"c"} = ${"n"}`;
+// const checkedFormatString = sql`SELECT * FROM ${"T"} WHERE ${"c"} = ${"n"}`;
 
-// >>> but types check correctly when using the function that had the error in its type declaration <<<
-checkedFormatString("user", "id", 1);
+// // >>> but types check correctly when using the function that had the error in its type declaration <<<
+// checkedFormatString("user", "id", 1);
 
-// >>> correctly catches incorrect types being passed <<<
-checkedFormatString(0, 1, 2);
-checkedFormatString("f", 1, "f");
+// // >>> correctly catches incorrect types being passed <<<
+// checkedFormatString(0, 1, 2);
+// checkedFormatString("f", 1, "f");
