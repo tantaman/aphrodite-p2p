@@ -9,7 +9,7 @@ const DeckSchema = {
   storage: {
     replicated: true,
     persisted: {
-      engine: "dexie",
+      engine: "sqlite",
       db: "test",
       tablish: "test",
     },

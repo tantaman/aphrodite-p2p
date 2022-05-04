@@ -15,7 +15,7 @@ const DeckSchema = {
   storage: {
     replicated: true,
     persisted: {
-      engine: "dexie",
+      engine: "sqlite",
       db: "test",
       tablish: "test",
     },
@@ -38,7 +38,7 @@ const ComponentSchema = {
   storage: {
     replicated: true,
     persisted: {
-      engine: "dexie",
+      engine: "sqlite",
       db: "test",
       tablish: "test",
     },
@@ -56,7 +56,7 @@ const SlideSchema = {
   storage: {
     replicated: true,
     persisted: {
-      engine: "dexie",
+      engine: "sqlite",
       db: "test",
       tablish: "test",
     },
@@ -83,7 +83,7 @@ const Component = DefineNode(ComponentSchema);
 const resolver = createResolver(createDb());
 const ctx = context(viewer(id("me")), resolver);
 
-new PersistTailer(ctx, ctx.persistLog);
+new PersistTailer(ctx, ctx.commitLog);
 
 test("explore", () => {
   const deckCs = Deck.create(ctx)

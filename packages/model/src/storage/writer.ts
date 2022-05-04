@@ -35,9 +35,8 @@ export default {
     switch (persist.engine) {
       case "sqlite":
         // convert to SQL ala `specAndOpsToSQL`
+        // await db.exec("YO! convert to SQL ala `specAndOpsToSQL`", []);
         break;
-      case "dexie":
-        throw new Error("Dexie not yet supported");
     }
   },
 };

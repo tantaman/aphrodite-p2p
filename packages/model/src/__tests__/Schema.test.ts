@@ -6,7 +6,7 @@ test("Defining a node", () => {
     storage: {
       replicated: true,
       persisted: {
-        engine: "dexie",
+        engine: "sqlite",
         db: "test",
         tablish: "test",
       },

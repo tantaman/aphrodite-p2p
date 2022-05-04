@@ -16,6 +16,7 @@ import { DerivedQuery, Query } from "./query/Query";
 import cache from "./cache";
 import QueryFactory from "./query/QueryFactory";
 import { modelLoad } from "./query/Expression";
+import { Engine } from "./storage/storageType";
 
 export function stringField(): string {
   throw new Error();
@@ -80,7 +81,7 @@ type JunctionEdge<TSrc extends NodeSchema, TDest extends NodeSchema> = {
 };
 
 export type PersistConfig = {
-  engine: "dexie" | "sqlite";
+  engine: Engine;
   db: string;
   tablish: string;
 };

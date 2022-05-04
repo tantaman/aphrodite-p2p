@@ -14,7 +14,7 @@ const SlideDefinition = {
   storage: {
     replicated: true,
     persisted: {
-      engine: "dexie",
+      engine: "sqlite",
       db: "test",
       tablish: "test",
     },
@@ -31,7 +31,7 @@ const DeckDefinition = {
   storage: {
     replicated: true,
     persisted: {
-      engine: "dexie",
+      engine: "sqlite",
       db: "test",
       tablish: "test",
     },
@@ -54,7 +54,7 @@ const TestModelDefinition = {
   storage: {
     replicated: true,
     persisted: {
-      engine: "dexie",
+      engine: "sqlite",
       db: "test",
       tablish: "test",
     },

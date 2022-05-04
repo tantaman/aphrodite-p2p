@@ -54,6 +54,7 @@ export class ChangesetExecutor {
     const combined = this._combineChangesets();
     this.removeNoops(combined);
     const [transaction, notifications] = this.apply(combined);
+    this.context.commitLog.push(transaction);
 
     // TODO: Should we do this tick or next tick?
     setTimeout(() => {
