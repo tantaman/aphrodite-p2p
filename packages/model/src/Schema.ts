@@ -13,6 +13,7 @@ import { Doc, Node, NodeBase } from "./Node";
 import { upcaseAt } from "@strut/utils";
 import P, { Predicate } from "./query/Predicate";
 import { Query } from "./query/Query";
+import cache from "cache";
 
 export function stringField(): string {
   throw new Error();
@@ -196,6 +197,10 @@ export function DefineNode<N extends NodeSchema>(node: N): NodeDefinition<N> {
       context: Context,
       id: ID_of<NodeInstanceType<N>>
     ): Promise<NodeInstanceType<N>> {
+      const cached = cache.get(id);
+      if (cached != null) {
+        return cached;
+      }
       const results = await queryAll(context).whereId(P.equals(id)).gen();
       return results[0];
     },

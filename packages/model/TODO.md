@@ -3,7 +3,9 @@
   - spin up replicator & syncer?
 - Generate `query` methods
 - Hook `read` up to storage for point reads
-
+- Wire query layer into cache layer...
+  - This likely means we only ever select IDs from storage then run a second
+  query to actually fetch columns... based on delta with cache...
 
 Should the resolved DB speak in terms of Changesets and QueryPlans?
 I.e., convert from those to the DB's native dialect?
