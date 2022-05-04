@@ -23,14 +23,14 @@
 // the reason to retain it for ourselves would be to handle
 // undo/redo for non-replicated models
 
-import cache from "./cache";
+import cache from "../cache";
 import { Context } from "context";
 import { Changeset } from "./Changeset";
-import { ID_of } from "./ID";
-import { Node } from "./Node";
-import { Task } from "./NotifyQueue";
-import { NodeSchema, RequiredNodeData } from "./Schema";
-import ImmutableNodeMap, { MutableNodeMap } from "./NodeMap";
+import { ID_of } from "../ID";
+import { Node } from "../Node";
+import { Task } from "../NotifyQueue";
+import { NodeSchema, RequiredNodeData } from "../Schema";
+import ImmutableNodeMap, { MutableNodeMap } from "../NodeMap";
 
 export type CombinedChangesets = Map<
   ID_of<Node<RequiredNodeData>>,

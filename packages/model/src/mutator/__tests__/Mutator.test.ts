@@ -1,8 +1,8 @@
-import createContext, { Context } from "../context";
-import { ID_of } from "../ID";
-import { DefineNode, RequiredNodeData, stringField } from "../Schema";
-import { Viewer, viewer } from "../viewer";
-import cache from "../cache";
+import createContext from "../../context";
+import { ID_of } from "../../ID";
+import { DefineNode, RequiredNodeData, stringField } from "../../Schema";
+import { Viewer, viewer } from "../../viewer";
+import cache from "../../cache";
 import { noopResolver } from "storage/DebugResolvers";
 
 const DeckSchema = {

@@ -1,7 +1,7 @@
-import { Changeset } from "./Changeset";
+import { Changeset } from "./mutator/Changeset";
 import nodeStorage from "./nodeStorage";
 import { NodeSchema, PersistConfig } from "./Schema";
-import { CombinedChangesets } from "./ChangesetExecutor";
+import { CombinedChangesets } from "./mutator/ChangesetExecutor";
 import TransactionLog from "./TransactionLog";
 import { Context } from "./context";
 import { Disposer } from "@strut/events";

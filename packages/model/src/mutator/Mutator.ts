@@ -1,4 +1,4 @@
-import { Context } from "./context";
+import { Context } from "../context";
 import { nanoid } from "nanoid";
 import {
   Changeset,
@@ -12,9 +12,9 @@ import {
   NodeInternalDataType,
   NodeSchema,
   RequiredNodeData,
-} from "./Schema";
+} from "../Schema";
 import { ChangesetExecutor } from "./ChangesetExecutor";
-import { id, ID_of } from "./ID";
+import { id, ID_of } from "../ID";
 
 // Validation should be applied in mutators?
 // Well field level validation, yes

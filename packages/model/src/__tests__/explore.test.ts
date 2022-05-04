@@ -3,7 +3,7 @@ import cache from "../cache";
 import context, { debugContext } from "../context";
 import { viewer } from "../viewer";
 import { id } from "../ID";
-import { commit } from "../commit";
+import { commit } from "../mutator/commit";
 import { noopResolver } from "storage/DebugResolvers";
 
 // TODO: incorporate fast check?

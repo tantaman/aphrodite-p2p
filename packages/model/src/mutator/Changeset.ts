@@ -1,11 +1,11 @@
-import { ID_of } from "./ID";
-import { Doc } from "./Node";
+import { ID_of } from "../ID";
+import { Doc } from "../Node";
 import {
   NodeDefinition,
   NodeInstanceType,
   NodeInternalDataType,
   NodeSchema,
-} from "./Schema";
+} from "../Schema";
 
 export type Changeset<N extends NodeSchema> =
   | DeleteChangeset<N>

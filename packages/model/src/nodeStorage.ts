@@ -1,5 +1,5 @@
 import { nullthrows } from "@strut/utils";
-import { Changeset } from "Changeset";
+import { Changeset } from "mutator/Changeset";
 import { Context } from "context";
 import { ID_of } from "ID";
 import { NodeDefinition, NodeInstanceType, NodeSchema } from "Schema";

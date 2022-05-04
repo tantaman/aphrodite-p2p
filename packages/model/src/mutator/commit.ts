@@ -1,6 +1,6 @@
 import { ChangesetExecutor } from "./ChangesetExecutor";
 import { Changeset } from "./Changeset";
-import { Context } from "./context";
+import { Context } from "../context";
 import { NodeSchema } from "Schema";
 
 export function commit(

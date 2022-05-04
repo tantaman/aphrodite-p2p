@@ -1,5 +1,8 @@
 import Observable from "@strut/events";
-import type { CombinedChangesets, Transaction } from "./ChangesetExecutor";
+import type {
+  CombinedChangesets,
+  Transaction,
+} from "./mutator/ChangesetExecutor";
 
 type Node = {
   transaction: Transaction;
