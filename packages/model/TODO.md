@@ -1,4 +1,7 @@
 # TODO
+- Example data builder (based on schema field examples) for integration tests?
+  - Or at least some way to issue the create table statements based on a schema
+  so we may thereafter save our state.
 - Spin up sync & replicate
 - Reactive layer
 - Generate `query` methods
@@ -6,7 +9,6 @@
   - This likely means we only ever select IDs from storage then run a second
   query to actually fetch columns... based on delta with cache...
   - Can optimized based on result set size (if knonw..)
-- Example data builder (based on schema field examples) for integration tests?
 - Stop using nanoid given the problems it generates for indices by not being able to be monotonically increasing. Back to `SID`?
 
 Should the resolved DB speak in terms of Changesets and QueryPlans?
