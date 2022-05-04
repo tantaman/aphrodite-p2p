@@ -1,8 +1,8 @@
 import { nullthrows } from "@strut/utils";
-import { Changeset } from "mutator/Changeset";
-import { Context } from "context";
-import { NodeSchema } from "Schema";
-import storageType from "storage/storageType";
+import { Changeset } from "../mutator/Changeset";
+import { Context } from "../context";
+import { NodeSchema } from "../Schema";
+import storageType from "../storage/storageType";
 
 export default {
   // Expectation is that all changesets are correctly batched.
@@ -30,10 +30,14 @@ export default {
       .engine(persist.engine)
       .db(persist.db);
 
-    // Ok... now we need to build the appropriate query.
-    // How do?
-    // Either pass changesets to DB or find a "write converter"
-    // to convert to a raw query.
-    // we can do write conversions inline to start.
+    // TODO: We'll figure a better abstraction (pluggable abstraction) for this
+    // in future iterations
+    switch (persist.engine) {
+      case "sqlite":
+        // convert to SQL ala `specAndOpsToSQL`
+        break;
+      case "dexie":
+        throw new Error("Dexie not yet supported");
+    }
   },
 };
