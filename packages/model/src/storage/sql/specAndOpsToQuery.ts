@@ -11,17 +11,16 @@ import {
 import SQLHopExpression from "../../query/sql/SQLHopExpression.js";
 import { ModelFieldGetter } from "../../query/Field.js";
 import { NodeDefinition, NodeSchema } from "../../Schema.js";
-import getKnex from "./getKnexForQueryBuilding.js";
 
 // given a model spec and hoisted operations, return the SQL query
 // TODO: maybe remove dependency on knex? Given we already have enough information to correctly
 // build the query in the given dialect.
-export default function specAndOpsToSQL(
+export default function specAndOpsToQuery(
   spec: NodeDefinition<NodeSchema>,
-  ops: HoistedOperations
+  ops: HoistedOperations,
+  db: Knex
 ): Knex.QueryBuilder {
-  const builder = getKnex(spec.schema);
-  let table = builder(spec.schema.storage.persisted?.tablish);
+  let table = db(spec.schema.storage.persisted?.tablish);
 
   const [lastSpec, lastWhat] = getLastSpecAndProjection(spec, ops);
   switch (lastWhat) {

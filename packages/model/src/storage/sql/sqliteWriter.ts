@@ -2,8 +2,7 @@ import { nullthrows } from "@strut/utils";
 import { Context } from "../../context";
 import storageType from "../../storage/storageType";
 import { Node } from "../../Node";
-import { RequiredNodeData, PersistConfig, NodeSchema } from "../../Schema";
-import knex from "knex";
+import { RequiredNodeData, NodeSchema } from "../../Schema";
 import { DeleteChangeset } from "mutator/Changeset";
 
 export default {
@@ -25,9 +24,8 @@ export default {
     // Ideally the above would return knex...
     // so we don't have to re-construct knex below just for query building...
 
-    const builder = knex({ client: "sqlite" });
     console.log(
-      builder(persist.tablish)
+      db(persist.tablish)
         .insert(nodes.map((n) => (n as any)._data))
         .onConflict("_id")
         .merge()

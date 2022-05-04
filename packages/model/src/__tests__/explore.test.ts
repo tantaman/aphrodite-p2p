@@ -4,9 +4,8 @@ import context from "../context";
 import { viewer } from "../viewer";
 import { id } from "../ID";
 import { commit } from "../mutator/commit";
-import { noopResolver } from "../storage/Resolvers";
 import PersistTailer from "../storage/PersistTailer";
-import { createDb, createResolver } from "./testDb";
+import { createResolver } from "./testDb";
 
 // TODO: incorporate fast check?
 // https://github.com/dubzzz/fast-check
@@ -80,7 +79,7 @@ const Deck = DefineNode(DeckSchema);
 const Slide = DefineNode(SlideSchema);
 const Component = DefineNode(ComponentSchema);
 
-const resolver = createResolver(createDb());
+const resolver = createResolver();
 const ctx = context(viewer(id("me")), resolver);
 
 const tailer = new PersistTailer(ctx, ctx.commitLog);

@@ -1,7 +1,8 @@
+import { nullthrows } from "@strut/utils";
 import knex from "knex";
-import { simpleResolver } from "../storage/Resolvers";
+import { DBResolver } from "storage/DBResolver";
 
-export function createDb() {
+function createDb() {
   return knex({
     client: "sqlite3",
     connection: ":memory:",
@@ -9,6 +10,23 @@ export function createDb() {
   });
 }
 
-export function createResolver(db: ReturnType<typeof createDb>) {
-  return simpleResolver(async (q, b) => await db.raw(q, b));
+let db: ReturnType<typeof createDb> | null = null;
+export function createResolver(): DBResolver {
+  if (db == null) {
+    db = createDb();
+  }
+
+  return {
+    type(t: "sql") {
+      return {
+        engine(engine: "sqlite") {
+          return {
+            db(dbName: string) {
+              return nullthrows(db);
+            },
+          };
+        },
+      };
+    },
+  };
 }
