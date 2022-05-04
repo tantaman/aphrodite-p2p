@@ -27,7 +27,7 @@ export type HoistedOperations = {
 };
 import { ModelFieldGetter } from "../Field.js";
 import { ModelSpec } from "@aphro/model-runtime-ts";
-import SQLHopExpression from "./SQLHopExpression.js";
+import SQLHopExpression from "./SQLHopExpression.js.js";
 
 export interface SQLResult {}
 

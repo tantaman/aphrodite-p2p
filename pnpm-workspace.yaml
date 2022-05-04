@@ -3,7 +3,6 @@ packages:
   - "git-modules/mono/typescript/packages/counter"
   - "git-modules/mono/typescript/packages/utils"
   - "packages/model"
-  - "packages/query"
   - "packages/hybrid-logical-clock"
   - "packages/website"
   - "examples/todo-app"
