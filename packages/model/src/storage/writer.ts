@@ -32,8 +32,8 @@ export default {
 
     // Ok... now we need to build the appropriate query.
     // How do?
-    // Maybe uplevel the DB API to take changesets and such things?
-    // Or create another layer like `SQLMutator`...
-    // switch on engine to create the query...
+    // Either pass changesets to DB or find a "write converter"
+    // to convert to a raw query.
+    // we can do write conversions inline to start.
   },
 };

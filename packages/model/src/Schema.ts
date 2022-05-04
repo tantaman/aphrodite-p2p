@@ -10,8 +10,9 @@ import {
 import { Context } from "./context";
 import { ID_of } from "./ID";
 import { Doc, Node, NodeBase } from "./Node";
-import nodeStorage from "./storage/writer";
 import { upcaseAt } from "@strut/utils";
+import P from "query/Predicate";
+import { Query } from "query/Query";
 
 export function stringField(): string {
   throw new Error();
@@ -131,10 +132,6 @@ export type NodeInternalDataType<T extends NodeSchema> = {
   >;
 } & RequiredNodeData;
 
-interface Query<T> {
-  gen(): Promise<T[]>;
-}
-
 export type NodeDefinition<N extends NodeSchema> = {
   schema: N;
   _createFromData: (
@@ -197,11 +194,11 @@ export function DefineNode<N extends NodeSchema>(node: N): NodeDefinition<N> {
       context: Context,
       id: ID_of<NodeInstanceType<N>>
     ): Promise<NodeInstanceType<N>> {
-      // This should generate a query and go thru query layer.
-      throw new Error();
+      const results = await queryAll(context).whereId(P.equals(id)).gen();
+      return results[0];
     },
 
-    // queryAll ?
+    queryAll,
 
     update(node: NodeInstanceType<N>): UpdateMutationBuilder<N> {
       return new UpdateMutationBuilder(node);
@@ -216,6 +213,12 @@ export function DefineNode<N extends NodeSchema>(node: N): NodeDefinition<N> {
       return new ConcreteNode(context, data);
     },
   };
+
+  function queryAll(
+    context: Context
+  ): QueryInstanceType<N, NodeInstanceType<N>> {
+    return new ConcreteQuery() as QueryInstanceType<N, NodeInstanceType<N>>;
+  }
 
   return definition;
 }
