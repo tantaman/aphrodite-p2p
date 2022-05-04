@@ -1,5 +1,5 @@
 import knex from "knex";
-import { simpleResolver } from "storage/Resolvers";
+import { simpleResolver } from "../storage/Resolvers";
 
 export function createDb() {
   return knex({
