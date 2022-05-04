@@ -6,7 +6,7 @@ import TransactionLog from "../TransactionLog";
 import { Context } from "../context";
 import { Disposer } from "@strut/events";
 
-export default class Persistor {
+export default class PersistTailer {
   private unobserve: Disposer;
   constructor(private context: Context, private log: TransactionLog) {
     // TODO: should we debounce this?

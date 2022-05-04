@@ -1,10 +1,11 @@
 import { DefineNode, idField, numberField, stringField } from "../Schema";
 import cache from "../cache";
-import context, { debugContext } from "../context";
+import context from "../context";
 import { viewer } from "../viewer";
 import { id } from "../ID";
 import { commit } from "../mutator/commit";
-import { noopResolver } from "storage/DebugResolvers";
+import { noopResolver } from "../storage/DebugResolvers";
+import PersistTailer from "../storage/PersistTailer";
 
 // TODO: incorporate fast check?
 // https://github.com/dubzzz/fast-check
@@ -79,6 +80,9 @@ const Slide = DefineNode(SlideSchema);
 const Component = DefineNode(ComponentSchema);
 
 const ctx = context(viewer(id("me")), noopResolver);
+
+new PersistTailer(ctx, ctx.persistLog);
+
 test("explore", () => {
   const deckCs = Deck.create(ctx)
     .set({
