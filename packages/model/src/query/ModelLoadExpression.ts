@@ -1,9 +1,12 @@
-import { IModel } from "@aphro/model-runtime-ts";
+import { RequiredNodeData } from "../Schema";
+import { Node } from "../Node";
 import { ChunkIterable, SyncMappedChunkIterable } from "./ChunkIterable";
 import { DerivedExpression } from "./Expression";
 
-export default class ModelLoadExpression<TData, TModel extends IModel<TData>>
-  implements DerivedExpression<TData, TModel>
+export default class ModelLoadExpression<
+  TData extends RequiredNodeData,
+  TModel extends Node<TData>
+> implements DerivedExpression<TData, TModel>
 {
   readonly type = "modelLoad";
   constructor(private factory: (TData) => TModel) {}

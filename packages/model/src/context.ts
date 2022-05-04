@@ -4,13 +4,13 @@ import root, { Root } from "./root";
 import { Viewer } from "./viewer";
 import * as Y from "yjs";
 import { RequiredNodeData } from "./Schema";
+import { DBResolver } from "query/storage/DBResolver";
 
 type DocProvider = (parent: ID_of<Doc<RequiredNodeData>> | null) => Y.Doc;
 
 export type Context = {
   readonly viewer: Viewer;
-  readonly root: Root;
-  readonly doc: DocProvider;
+  readonly dbResolver: DBResolver;
   // cache
   // default logs
   // svc registry?

@@ -1,8 +1,8 @@
 import { invariant } from "@strut/utils";
+import { maybeStorageType } from "../storage/storageType.js";
+import { EdgeSchema, NodeSchema } from "../../Schema.js";
 import { HopExpression } from "../Expression.js";
 import { HopQuery, Query } from "../Query.js";
-import { ModelSpec, StorageConfig } from "@aphro/model-runtime-ts";
-import { EdgeSpec } from "@aphro/schema-api";
 
 export default class SQLHopQuery<TIn, TOut> extends HopQuery<TIn, TOut> {
   /*
@@ -10,21 +10,28 @@ export default class SQLHopQuery<TIn, TOut> extends HopQuery<TIn, TOut> {
   We'll take source and see what the source is to determine what HOP
   expression to construct?
   */
-  static create<TIn, TOut>(sourceQuery: Query<TIn>, edge: EdgeSpec) {
+  static create<TIn, TOut>(
+    sourceQuery: Query<TIn>,
+    source: NodeSchema,
+    edge: EdgeSchema<NodeSchema>
+  ) {
     // based on source and dest spec, determine the appropriate hop expression
-    return new SQLHopQuery(sourceQuery, createExpression(edge));
+    return new SQLHopQuery(sourceQuery, createExpression(source, edge));
   }
 }
 
-function createExpression<TIn, TOut>(edge: EdgeSpec): HopExpression<TIn, TOut> {
-  if (edge.source.storage.type === "sql") {
+function createExpression<TIn, TOut>(
+  source: NodeSchema,
+  edge: EdgeSchema<NodeSchema>
+): HopExpression<TIn, TOut> {
+  if (maybeStorageType(source.storage.persisted?.engine) === "sql") {
     invariant(
-      edge.dest.storage.type === "sql",
+      maybeStorageType(edge.dest.storage.persisted?.engine) === "sql",
       "SQLHopQuery created for non-sql destination"
     );
 
     // If we're the same storage on the same DB, we can use a join expression
-    if (edge.source.storage.db === edge.dest.storage.db) {
+    if (source.storage.persisted?.db === edge.dest.storage.persisted?.db) {
       return createJoinExpression(edge);
     }
   }
@@ -33,13 +40,13 @@ function createExpression<TIn, TOut>(edge: EdgeSpec): HopExpression<TIn, TOut> {
 }
 
 function createJoinExpression<TIn, TOut>(
-  edge: EdgeSpec
+  edge: EdgeSchema<NodeSchema>
 ): HopExpression<TIn, TOut> {
   throw new Error("Join not yet supported");
 }
 
 function createChainedHopExpression<TIn, TOut>(
-  edge: EdgeSpec
+  edge: EdgeSchema<NodeSchema>
 ): HopExpression<TIn, TOut> {
   throw new Error("In memory hop not yet supported");
 }

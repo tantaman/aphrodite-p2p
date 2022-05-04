@@ -1,3 +1,6 @@
+# TODO
+- rm root & yjs dependencies
+
 # Impl
 - Track re-creates of previously deleted things (e.g., because undo) via Causal Length Set CRDT (crr paper)
 - Implement hybrid logical clocks

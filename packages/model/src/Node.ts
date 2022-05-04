@@ -16,6 +16,7 @@ Not persisted or synced (ephemeral)
 */
 
 export interface Node<T extends RequiredNodeData> {
+  // TODO: move these `_` to an internal data type
   readonly _context: Context;
   readonly _id: ID_of<this>;
   readonly _parentDocId: ID_of<Doc<RequiredNodeData>> | null;
@@ -23,6 +24,7 @@ export interface Node<T extends RequiredNodeData> {
   _destroy(): void;
   _merge(newData: Partial<T>): [Partial<T>, Set<() => void>];
   _isNoop(updates: Partial<T>): boolean;
+  _get<Tk extends keyof T>(key: Tk): T[Tk];
 
   subscribe(c: () => void): Disposer;
   subscribeTo(keys: (keyof T)[], c: () => void): Disposer;
@@ -46,6 +48,10 @@ export abstract class NodeBase<T extends RequiredNodeData> implements Node<T> {
 
   get _parentDocId(): ID_of<Doc<RequiredNodeData>> | null {
     return this._data._parentDocId;
+  }
+
+  _get<Tk extends keyof T>(key: Tk): T[Tk] {
+    return this._data[key];
   }
 
   _destroy() {

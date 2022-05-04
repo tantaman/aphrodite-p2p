@@ -55,7 +55,9 @@ export type SchemaFieldType =
   | typeof setField
   | typeof mapField;
 
-type Edge<TDest extends NodeSchema> = FieldEdge<TDest> | ForeignKeyEdge<TDest>;
+export type EdgeSchema<TDest extends NodeSchema> =
+  | FieldEdge<TDest>
+  | ForeignKeyEdge<TDest>;
 type FieldEdge<TDest extends NodeSchema> = {
   type: "field";
   field: string; // Can we assert that this field exists on current schema?
@@ -88,7 +90,7 @@ export type NodeSchema = {
     [key: string]: SchemaFieldType;
   };
   edges: () => {
-    [key: string]: Edge<NodeSchema>;
+    [key: string]: EdgeSchema<NodeSchema>;
   };
 };
 
@@ -139,6 +141,7 @@ export type NodeDefinition<N extends NodeSchema> = {
     context: Context,
     data: NodeInternalDataType<N>
   ) => NodeInstanceType<N>;
+  // TODO create query / query all
   create(context: Context): CreateMutationBuilder<N>;
   read(
     context: Context,

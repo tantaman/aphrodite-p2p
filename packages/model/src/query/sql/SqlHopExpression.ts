@@ -1,17 +1,17 @@
-import { ModelSpec } from "@aphro/model-runtime-ts";
-import { SID_of } from "@strut/sid";
+import { ID_of } from "../../ID.js";
+import { NodeDefinition, NodeInstanceType, NodeSchema } from "../../Schema.js";
 import { ChunkIterable } from "../ChunkIterable.js";
 import { HopExpression } from "../Expression.js";
 import HopPlan from "../HopPlan.js";
 import { HoistedOperations } from "./SqlSourceExpression.js";
 
 export default class SQLHopExpression<T>
-  implements HopExpression<SID_of<any>, T>
+  implements HopExpression<ID_of<NodeInstanceType<NodeSchema>>, T>
 {
-  readonly spec: ModelSpec<any, any>;
+  readonly spec: NodeDefinition<NodeSchema>;
   readonly ops: HoistedOperations;
 
-  chainAfter(iterable: ChunkIterable<SID_of<any>>): ChunkIterable<T> {
+  chainAfter(iterable: ChunkIterable<ID_of<any>>): ChunkIterable<T> {
     throw new Error("unimplemented");
   }
   /**

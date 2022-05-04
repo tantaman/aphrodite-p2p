@@ -26,21 +26,25 @@ export type HoistedOperations = {
   what: "model" | "ids" | "edges" | "count";
 };
 import { ModelFieldGetter } from "../Field.js";
-import { ModelSpec } from "@aphro/model-runtime-ts";
-import SQLHopExpression from "./SQLHopExpression.js.js";
+import SQLHopExpression from "./SQLHopExpression.js";
+import { NodeDefinition, NodeSchema } from "Schema.js";
+import { Context } from "../../context.js";
 
 export interface SQLResult {}
 
 export default class SQLSourceExpression<T> implements SourceExpression<T> {
   constructor(
-    // we should take a schema instead of db
-    // we'd need the schema to know if we can hoist certain fields or not
-    private spec: ModelSpec<T, any>,
+    private context: Context,
+    private spec: NodeDefinition<NodeSchema>,
     private hoistedOperations: HoistedOperations
   ) {}
 
   get iterable(): ChunkIterable<T> {
-    return new SQLSourceChunkIterable(this.spec, this.hoistedOperations);
+    return new SQLSourceChunkIterable(
+      this.context,
+      this.spec,
+      this.hoistedOperations
+    );
   }
 
   optimize(plan: Plan, nextHop?: HopPlan): Plan {
@@ -105,7 +109,7 @@ export default class SQLSourceExpression<T> implements SourceExpression<T> {
     }
 
     return new Plan(
-      new SQLSourceExpression(this.spec, {
+      new SQLSourceExpression(this.context, this.spec, {
         filters: writableFilters,
         orderBy,
         limit,

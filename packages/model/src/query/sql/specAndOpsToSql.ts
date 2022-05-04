@@ -1,27 +1,29 @@
-import { ModelSpec } from "@aphro/model-runtime-ts";
 import { HoistedOperations } from "./SqlSourceExpression.js";
 import knex, { Knex } from "knex";
 import { after, before, filter, orderBy, take } from "../Expression.js";
-import SQLHopExpression from "./SQLHopExpression.js.js";
+import SQLHopExpression from "./SQLHopExpression.js";
 import { ModelFieldGetter } from "../Field.js";
+import { NodeDefinition, NodeSchema } from "../../Schema.js";
 
 // given a model spec and hoisted operations, return the SQL query
+// TODO: maybe remove dependency on knex? Given we already have enough information to correctly
+// build the query in the given dialect.
 export default function specAndOpsToSQL(
-  spec: ModelSpec<any, any>,
+  spec: NodeDefinition<NodeSchema>,
   ops: HoistedOperations
 ): Knex.QueryBuilder {
   const builder = getKnex(spec);
-  let table = builder(spec.storage.tablish);
+  let table = builder(spec.schema.storage.persisted?.tablish);
 
   const [lastSpec, lastWhat] = getLastSpecAndProjection(spec, ops);
   switch (lastWhat) {
     case "count":
-      table = table.select(`count(${lastSpec.primaryKey})`);
+      table = table.select(`count(_id)`);
       break;
     case "edges":
       throw new Error("edge projection not yet supported");
     case "ids":
-      table = table.select(lastSpec.primaryKey);
+      table = table.select("_id");
       break;
     case "model":
       // TODO: lastSpec.fields.map(t.f).join(",");
@@ -39,9 +41,9 @@ export default function specAndOpsToSQL(
 }
 
 function getLastSpecAndProjection(
-  spec: ModelSpec<any, any>,
+  spec: NodeDefinition<NodeSchema>,
   ops: HoistedOperations
-): [ModelSpec<any, any>, HoistedOperations["what"]] {
+): [NodeDefinition<NodeSchema>, HoistedOperations["what"]] {
   const hop = ops.hop;
   if (hop == null) {
     return [spec, ops.what];
@@ -133,11 +135,11 @@ function applyHops<T extends Knex.QueryBuilder>(
   return table;
 }
 
-function getKnex(spec: ModelSpec<any, any>) {
-  switch (spec.storage.engine) {
-    case "mysql":
-      return knex({ client: "mysql" });
-    case "postgres":
-      return knex({ client: "pg" });
+function getKnex(spec: NodeDefinition<NodeSchema>) {
+  switch (spec.schema.storage.persisted?.engine) {
+    case "sqlite":
+      return knex({ client: "sqlite" });
+    default:
+      throw new Error("unsupported");
   }
 }

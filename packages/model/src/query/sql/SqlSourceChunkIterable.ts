@@ -1,25 +1,28 @@
-import { ModelSpec } from "@aphro/model-runtime-ts";
 import { BaseChunkIterable } from "../ChunkIterable.js";
 import specAndOpsToSQL from "./specAndOpsToSQL.js";
 import { HoistedOperations } from "./SqlSourceExpression.js";
-import { invariant } from "@strut/utils";
-import { __internalConfig } from "@aphro/config-runtime-ts";
+import { invariant, nullthrows } from "@strut/utils";
+import { NodeDefinition, NodeSchema } from "Schema.js";
+import storageType, { maybeStorageType } from "../storage/storageType.js";
+import { Context } from "../../context";
 
 export default class SQLSourceChunkIterable<T> extends BaseChunkIterable<T> {
   private cachedCompilation: ReturnType<typeof compile> | null;
   constructor(
-    private spec: ModelSpec<T, any>,
+    private context: Context,
+    private spec: NodeDefinition<NodeSchema>,
     private hoistedOperations: HoistedOperations
   ) {
     super();
     invariant(
-      this.spec.storage.type === "sql",
+      maybeStorageType(this.spec.schema.storage.persisted?.engine) === "sql",
       "SQL source used for non-SQL model!"
     );
   }
 
   async *[Symbol.asyncIterator](): AsyncIterator<readonly T[]> {
     const query = this.compileQuery();
+    const persisted = nullthrows(this.spec.schema.storage.persisted);
 
     // TODO: stronger types one day
     // e.g., exec should by parametrized and checked against T somehow.
@@ -27,10 +30,10 @@ export default class SQLSourceChunkIterable<T> extends BaseChunkIterable<T> {
     // also... this is pretty generic and would apply to non-sql data sources too.
     // given the actual query execution happens in the resolver.
     // also -- should we chunk it at all?
-    return await __internalConfig.resolver
-      .type(this.spec.storage.type)
-      .engine(this.spec.storage.engine)
-      .tablish(this.spec.storage.tablish)
+    return await this.context.dbResolver
+      .type(storageType(persisted.engine))
+      .engine(persisted.engine)
+      .db(persisted.db)
       .exec(query.sql, query.bindings);
   }
 
@@ -47,7 +50,7 @@ export default class SQLSourceChunkIterable<T> extends BaseChunkIterable<T> {
 // This is the only SQL specific bit.
 // well.. the hoisted ops would differ by backend too.
 function compile(
-  spec: ModelSpec<any, any>,
+  spec: NodeDefinition<NodeSchema>,
   hoistedOperations: HoistedOperations
 ) {
   // TODO Nit: -- slight problem in that the sql generated here is knex format not native format

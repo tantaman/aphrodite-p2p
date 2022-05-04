@@ -10,7 +10,8 @@ import { Predicate } from "./Predicate.js";
 import { FieldGetter } from "./Field.js";
 import HopPlan from "./HopPlan.js";
 import ModelLoadExpression from "./ModelLoadExpression.js";
-import { IModel, ModelSpec } from "@aphro/model-runtime-ts";
+import { Node } from "../Node.js";
+import { RequiredNodeData } from "../Schema.js";
 
 export type ExpressionType =
   | "take"
@@ -116,9 +117,10 @@ export function hop<TIn, TOut>(): HopExpression<TIn, TOut> {
   throw new Error();
 }
 
-export function modelLoad<TData, TModel extends IModel<TData>>(
-  factory: (TData) => TModel
-): ModelLoadExpression<TData, TModel> {
+export function modelLoad<
+  TData extends RequiredNodeData,
+  TModel extends Node<TData>
+>(factory: (TData) => TModel): ModelLoadExpression<TData, TModel> {
   return new ModelLoadExpression(factory);
 }
 

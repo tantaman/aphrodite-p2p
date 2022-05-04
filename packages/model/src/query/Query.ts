@@ -1,9 +1,4 @@
-import {
-  DerivedExpression,
-  Expression,
-  HopExpression,
-  SourceExpression,
-} from "./Expression.js";
+import { Expression, HopExpression, SourceExpression } from "./Expression.js";
 import HopPlan from "./HopPlan.js";
 import Plan, { IPlan } from "./Plan.js";
 
