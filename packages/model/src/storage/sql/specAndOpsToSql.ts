@@ -1,6 +1,6 @@
 import { HoistedOperations } from "../../query/sql/SqlSourceExpression.js";
 // TODO: probably remove dependency on knex
-import knex, { Knex } from "knex";
+import { Knex } from "knex";
 import {
   after,
   before,
@@ -20,7 +20,7 @@ export default function specAndOpsToSQL(
   spec: NodeDefinition<NodeSchema>,
   ops: HoistedOperations
 ): Knex.QueryBuilder {
-  const builder = getKnex(spec);
+  const builder = getKnex(spec.schema);
   let table = builder(spec.schema.storage.persisted?.tablish);
 
   const [lastSpec, lastWhat] = getLastSpecAndProjection(spec, ops);

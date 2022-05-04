@@ -34,3 +34,11 @@ export type DeleteChangeset<N extends NodeSchema> = {
   _parentDocId: ID_of<Doc<any>> | null;
   node: NodeInstanceType<N>;
 };
+
+export function getSchema(cs: Changeset<NodeSchema>): NodeSchema {
+  if (cs.type === "create") {
+    return cs.definition.schema;
+  }
+
+  return cs.node._definition.schema;
+}

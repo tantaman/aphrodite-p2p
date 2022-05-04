@@ -1,42 +1,39 @@
 import { nullthrows } from "@strut/utils";
-import { Changeset } from "../mutator/Changeset";
+import { Changeset, DeleteChangeset } from "../mutator/Changeset";
 import { Context } from "../context";
-import { NodeSchema } from "../Schema";
-import storageType from "../storage/storageType";
+import { NodeSchema, RequiredNodeData } from "../Schema";
+import { Node } from "../Node";
+import sqliteWriter from "./sql/sqliteWriter";
 
 export default {
-  // Expectation is that all changesets are correctly batched.
-  // I.e., they all go to the same table.
-  // Or can we not send them to many tables so long as they are all on the same db?
-  async writeBatch(
+  // TODO: the common case is probably updating a single node
+  // for a single engine. Should we optimize for that path instead?
+  async upsertBatch(
     context: Context,
-    changes: Changeset<NodeSchema>[]
+    nodes: IterableIterator<Node<RequiredNodeData>>
   ): Promise<void> {
-    const firstChange = changes[0];
-    if (firstChange == null) {
-      return;
+    const byEngine = new Map();
+    for (const node of nodes) {
+      const engine = node._definition.schema.storage.persisted?.engine;
+      let grouping = byEngine.get(engine);
+      if (grouping == null) {
+        grouping = [];
+        byEngine.set(engine, grouping);
+      }
+      grouping.push(node);
     }
 
-    let schema: NodeSchema;
-    if (firstChange.type === "create") {
-      schema = firstChange.definition.schema;
-    } else {
-      schema = firstChange.node._definition.schema;
-    }
-
-    const persist = nullthrows(schema.storage.persisted);
-    const db = context.dbResolver
-      .type(storageType(persist.engine))
-      .engine(persist.engine)
-      .db(persist.db);
-
-    // TODO: We'll figure a better abstraction (pluggable abstraction) for this
-    // in future iterations
-    switch (persist.engine) {
-      case "sqlite":
-        // convert to SQL ala `specAndOpsToSQL`
-        // await db.exec("YO! convert to SQL ala `specAndOpsToSQL`", []);
-        break;
+    for (const [engine, group] of byEngine) {
+      switch (engine) {
+        case "sqlite":
+          sqliteWriter.upsertGroup(group);
+          break;
+      }
     }
   },
+
+  async deleteBatch(
+    context: Context,
+    deletes: DeleteChangeset<NodeSchema>[]
+  ): Promise<void> {},
 };

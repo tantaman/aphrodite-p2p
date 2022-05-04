@@ -10,7 +10,7 @@ type Node = {
   prev?: Node;
 };
 
-export default class TransactionLog extends Observable<CombinedChangesets> {
+export default class TransactionLog extends Observable<Transaction> {
   private lastTransaction?: Node;
   private firstTransaction?: Node;
   private length: number = 0;
@@ -47,7 +47,7 @@ export default class TransactionLog extends Observable<CombinedChangesets> {
       --this.length;
     }
 
-    this.notify(tx.changes);
+    this.notify(tx);
   }
 
   // revert() {
