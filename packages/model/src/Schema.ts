@@ -167,13 +167,13 @@ export function DefineNode<N extends NodeSchema>(node: N): NodeDefinition<N> {
 
   Object.entries(node.edges()).forEach(([key, value]) => {
     ConcreteNode.prototype[`query${upcaseAt(key, 0)}`] = function () {
-      // source expression and all that stuff
-      // source expression will be runtime determined
+      // get correct query type
     };
   });
 
   // Need to define query methods to return new queries
 
+  // Create the correct source query
   class ConcreteQuery {}
 
   Object.entries(node.edges()).forEach(([key, value]) => {

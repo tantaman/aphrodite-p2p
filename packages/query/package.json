@@ -1,12 +1,10 @@
 {
-  "name": "@aphro/lf-model",
+  "name": "@aphro/lf-query",
   "version": "0.0.1",
   "main": "lib/index.js",
   "type": "module",
   "dependencies": {
-    "@strut/events": "workspace:*",
-    "@strut/utils": "workspace:*",
-    "nanoid": "^3.3.3"
+    "@strut/utils": "workspace:*"
   },
   "scripts": {
     "clean": "tsc --clean --build",
