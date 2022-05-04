@@ -1,4 +1,4 @@
-# Aphrodite Local First
+# Aphrodite P2P
 
 And exploration of [Aphrodite](https://github.com/tantaman/aphrodite) as:
 1. P2P & Local first. No central server or DB. All data is persisted locally and replicated in a p2p manner between clients.
