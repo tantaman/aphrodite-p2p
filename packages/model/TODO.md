@@ -1,5 +1,11 @@
 # TODO
-- rm root & yjs dependencies
+- add logs to context
+  - spin up persistor?
+  - spin up replicator & syncer?
+- Generate `query` methods
+- Hook `read` up to storage for point reads
+
+How will persistor work? Schemas are passed with changesets so this'll allow us to determine what to do.
 
 # Impl
 - Track re-creates of previously deleted things (e.g., because undo) via Causal Length Set CRDT (crr paper)
