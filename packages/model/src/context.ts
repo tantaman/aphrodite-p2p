@@ -6,24 +6,20 @@ import TransactionLog from "./TransactionLog";
 export type Context = {
   readonly viewer: Viewer;
   readonly dbResolver: DBResolver;
-  readonly replicationLog: TransactionLog;
-  readonly persistLog: TransactionLog;
+  readonly commitLog: TransactionLog;
 };
 
-const defaultReplicationLog = new TransactionLog(50);
-const defaultPersistLog = new TransactionLog(50);
+const defaultCommitLog = new TransactionLog(50);
 
 export default function context(
   viewer: Viewer,
   dbResolver: DBResolver,
-  replicationLog: TransactionLog = defaultReplicationLog,
-  persistLog: TransactionLog = defaultPersistLog
+  commitLog: TransactionLog = defaultCommitLog
 ): Context {
   return {
     viewer,
     dbResolver,
-    replicationLog,
-    persistLog,
+    commitLog,
   };
 }
 
