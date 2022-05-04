@@ -1,7 +1,7 @@
 import { nullthrows } from "@strut/utils";
 import { Changeset, DeleteChangeset } from "../mutator/Changeset";
 import { Context } from "../context";
-import { NodeSchema, RequiredNodeData } from "../Schema";
+import { NodeSchema, PersistConfig, RequiredNodeData } from "../Schema";
 import { Node } from "../Node";
 import sqliteWriter from "./sql/sqliteWriter";
 
@@ -12,21 +12,27 @@ export default {
     context: Context,
     nodes: IterableIterator<Node<RequiredNodeData>>
   ): Promise<void> {
-    const byEngine = new Map();
+    const byEngineDbTable: Map<string, Node<RequiredNodeData>[]> = new Map();
     for (const node of nodes) {
-      const engine = node._definition.schema.storage.persisted?.engine;
-      let grouping = byEngine.get(engine);
+      const key = createKey(
+        nullthrows(node._definition.schema.storage.persisted)
+      );
+      let grouping: Node<RequiredNodeData>[] | undefined =
+        byEngineDbTable.get(key);
       if (grouping == null) {
         grouping = [];
-        byEngine.set(engine, grouping);
+        byEngineDbTable.set(key, grouping);
       }
       grouping.push(node);
     }
 
-    for (const [engine, group] of byEngine) {
+    for (const [key, group] of byEngineDbTable) {
+      const engine = nullthrows(
+        group[0]._definition.schema.storage.persisted?.engine
+      );
       switch (engine) {
         case "sqlite":
-          sqliteWriter.upsertGroup(group);
+          sqliteWriter.upsertGroup(context, group);
           break;
       }
     }
@@ -37,3 +43,9 @@ export default {
     deletes: DeleteChangeset<NodeSchema>[]
   ): Promise<void> {},
 };
+
+function createKey(persistConfig: PersistConfig): string {
+  return (
+    persistConfig.engine + "-" + persistConfig.db + "-" + persistConfig.tablish
+  );
+}

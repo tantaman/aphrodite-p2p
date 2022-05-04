@@ -1,40 +1,30 @@
+import { nullthrows } from "@strut/utils";
+import { Context } from "../../context";
+import storageType from "../../storage/storageType";
 import { Node } from "../../Node";
 import { RequiredNodeData, PersistConfig } from "../../Schema";
+import knex from "knex";
 
 export default {
-  upsertGroup(nodes: Node<RequiredNodeData>[]) {
-    // group the nodes again by db...
-    // and then run a single upsert against all hit tables within that db
-    // const db = context.dbResolver
-    //   .type(storageType(persist.engine))
-    //   .engine(persist.engine)
-    //   .db(persist.db);
-    // const firstChange = changes[0];
-    // if (firstChange == null) {
-    //   return;
-    // }
-    // let schema: NodeSchema;
-    // if (firstChange.type === "create") {
-    //   schema = firstChange.definition.schema;
-    // } else {
-    //   schema = firstChange.node._definition.schema;
-    // }
-    // const persist = nullthrows(schema.storage.persisted);
-    // // TODO: We'll figure a better abstraction (pluggable abstraction) for this
-    // // in future iterations
-    // switch (persist.engine) {
-    //   case "sqlite":
-    //     // convert to SQL ala `specAndOpsToSQL`
-    //     // await db.exec("YO! convert to SQL ala `specAndOpsToSQL`", []);
-    //     break;
-    // }
+  // Precondition: already grouped by db & table
+  upsertGroup(context: Context, nodes: Node<RequiredNodeData>[]) {
+    const first = nodes[0];
+    const persist = nullthrows(first._definition.schema.storage.persisted);
+    const db = context.dbResolver
+      .type(storageType(persist.engine))
+      .engine(persist.engine)
+      .db(persist.db);
+
+    const builder = knex({ client: "sqlite" });
+    console.log(
+      builder(persist.tablish)
+        .insert(nodes.map((n) => (n as any)._data))
+        .onConflict("_id")
+        .merge()
+        .returning("*")
+        .toSQL()
+    );
   },
 
   deleteGroup() {},
 };
-
-function createKey(persistConfig: PersistConfig): string {
-  return (
-    persistConfig.db + "-" + persistConfig.engine + "-" + persistConfig.tablish
-  );
-}

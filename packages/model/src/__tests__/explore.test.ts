@@ -83,9 +83,9 @@ const Component = DefineNode(ComponentSchema);
 const resolver = createResolver(createDb());
 const ctx = context(viewer(id("me")), resolver);
 
-new PersistTailer(ctx, ctx.commitLog);
+const tailer = new PersistTailer(ctx, ctx.commitLog);
 
-test("explore", () => {
+test("explore", async () => {
   const deckCs = Deck.create(ctx)
     .set({
       name: "Exploratory",
@@ -107,6 +107,8 @@ test("explore", () => {
   const deck = commit(ctx, [deckCs, slideCs, componentCs]).nodes.get(
     deckCs._id
   );
+
+  await tailer.pendingWrites;
 });
 
 afterAll(() => cache.destroy());

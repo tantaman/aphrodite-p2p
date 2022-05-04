@@ -5,19 +5,20 @@ import TransactionLog from "../TransactionLog";
 import { Context } from "../context";
 import { Disposer } from "@strut/events";
 import { ID_of } from "../ID";
-import { debounce, nullthrows } from "@strut/utils";
 import { Node } from "../Node";
 import writer from "./writer";
+import { nullthrows } from "@strut/utils";
 
 export default class PersistTailer {
   private unobserve: Disposer;
 
-  private collectedDeletes: DeleteChangeset<NodeSchema>[];
+  private collectedDeletes: DeleteChangeset<NodeSchema>[] = [];
   private collectedCreatesOrUpdates: Map<
     ID_of<Node<RequiredNodeData>>,
     Node<RequiredNodeData>
-  >;
-  private write: (_: unknown) => void;
+  > = new Map();
+  private write: () => Promise<void[]>;
+  public pendingWrites: Promise<void[]> | null = null;
 
   constructor(
     private context: Context,
@@ -32,15 +33,16 @@ export default class PersistTailer {
     }
   }
 
-  private writeImmediate = (_: unknown) => {
+  private writeImmediate = () => {
     const collectedDeletes = this.collectedDeletes;
     this.collectedDeletes = [];
     const collectedCreatesOrUpdates = this.collectedCreatesOrUpdates;
     this.collectedCreatesOrUpdates = new Map();
 
-    // TODO: get status from our promises... don't lose them like this
-    writer.deleteBatch(this.context, collectedDeletes);
-    writer.upsertBatch(this.context, this.collectedCreatesOrUpdates.values());
+    return Promise.all([
+      writer.deleteBatch(this.context, collectedDeletes),
+      writer.upsertBatch(this.context, collectedCreatesOrUpdates.values()),
+    ]);
   };
 
   private _onLogChange = (tx: Transaction) => {
@@ -58,44 +60,7 @@ export default class PersistTailer {
 
       this.collectedCreatesOrUpdates.set(key, nullthrows(tx.nodes.get(key)));
     });
-    this.write(null);
-    // Deletes -- special case, not an insert
-    // Creates and updates -- upsert
-    // Create -- insert
-    // Update -- update
-    // knex doesn't support upsert for sql dialects??
-    // ---
-    // const batches: Map<string, Changeset<NodeSchema>[]> = new Map();
-    // for (let [id, changeset] of changes) {
-    //   // Skip non-persisted models
-    //   let nodeSchema: NodeSchema;
-    //   if (changeset.type === "create") {
-    //     nodeSchema = changeset.definition.schema;
-    //   } else {
-    //     nodeSchema = changeset.node._definition.schema;
-    //   }
-    //   if (!nodeSchema.storage.persisted) {
-    //     continue;
-    //   }
-    //   // TODO: Combine things that are in the same tablish so we can
-    //   // pull into a single insert.
-    //   const key = createKey(nodeSchema.storage.persisted);
-    //   let batch = batches.get(key);
-    //   if (batch == null) {
-    //     batch = [];
-    //     batches.set(key, batch);
-    //   }
-    //   batch.push(changeset);
-    // }
-    // const writes: Promise<void>[] = [];
-    // for (const batch of batches.values()) {
-    //   writes.push(nodeStorage.writeBatch(this.context, batch));
-    // }
-    // // TODO: how will we handle recovery?
-    // // The in-memory representations are already updated at this point.
-    // // Should we roll them back?
-    // // also -- should we allow these changesets to take place in DB transactions?
-    // Promise.all(writes).catch((err) => console.error(err));
+    this.pendingWrites = this.write();
   };
 
   // Debounced `onLogChange`
@@ -106,4 +71,29 @@ export default class PersistTailer {
   dispose() {
     this.unobserve();
   }
+}
+
+function debounce<T>(cb: () => Promise<T>, time: number): () => Promise<T> {
+  let pending: ReturnType<typeof setTimeout> | null = null;
+  let promise: Promise<T>;
+  let resolveOuter: (value: T | PromiseLike<T>) => void;
+  return () => {
+    if (pending == null) {
+      promise = new Promise((resolve, _reject) => {
+        resolveOuter = resolve;
+      });
+    }
+
+    if (pending != null) {
+      clearTimeout(pending);
+      pending = null;
+    }
+
+    pending = setTimeout(() => {
+      pending = null;
+      resolveOuter(cb());
+    }, time);
+
+    return promise;
+  };
 }
