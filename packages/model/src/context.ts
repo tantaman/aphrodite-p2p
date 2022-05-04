@@ -1,6 +1,6 @@
 import { Viewer } from "./viewer";
 import { DBResolver } from "./storage/DBResolver";
-import resolver from "./storage/PrintResolver";
+import { printResolver } from "./storage/DebugResolvers";
 
 export type Context = {
   readonly viewer: Viewer;
@@ -22,7 +22,7 @@ export default function context(
 }
 
 export function debugContext(viewer: Viewer): Context {
-  return context(viewer, resolver);
+  return context(viewer, printResolver);
 }
 
 export function newFrom(

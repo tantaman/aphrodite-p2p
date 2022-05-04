@@ -1,9 +1,9 @@
 import createContext, { Context } from "../context";
 import { ID_of } from "../ID";
-import root from "../root";
 import { DefineNode, RequiredNodeData, stringField } from "../Schema";
 import { Viewer, viewer } from "../viewer";
 import cache from "../cache";
+import { noopResolver } from "storage/DebugResolvers";
 
 const DeckSchema = {
   storage: {
@@ -21,7 +21,7 @@ const DeckSchema = {
   edges: () => ({}),
 } as const;
 
-const context = createContext(viewer("123" as ID_of<Viewer>), root());
+const context = createContext(viewer("123" as ID_of<Viewer>), noopResolver);
 test("create mutation builder changeset generation", () => {
   const Deck = DefineNode(DeckSchema);
 

@@ -14,6 +14,9 @@ class TestNode implements Node<RequiredNodeData> {
   }
 
   _destroy(): void {}
+  _get<Tk extends keyof RequiredNodeData>(key: Tk): RequiredNodeData[Tk] {
+    throw new Error();
+  }
   _merge(
     newData: Partial<RequiredNodeData>
   ): [Partial<RequiredNodeData>, Set<() => void>] {

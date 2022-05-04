@@ -1,9 +1,10 @@
 import { DefineNode, idField, numberField, stringField } from "../Schema";
 import cache from "../cache";
-import context from "../context";
+import context, { debugContext } from "../context";
 import { viewer } from "../viewer";
 import { id } from "../ID";
 import { commit } from "../commit";
+import { noopResolver } from "storage/DebugResolvers";
 
 // TODO: incorporate fast check?
 // https://github.com/dubzzz/fast-check
@@ -77,7 +78,7 @@ const Deck = DefineNode(DeckSchema);
 const Slide = DefineNode(SlideSchema);
 const Component = DefineNode(ComponentSchema);
 
-const ctx = context(viewer(id("me")));
+const ctx = context(viewer(id("me")), noopResolver);
 test("explore", () => {
   const deckCs = Deck.create(ctx)
     .set({

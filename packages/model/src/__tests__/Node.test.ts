@@ -7,8 +7,8 @@ import {
 } from "../Schema";
 import createContext from "../context";
 import { viewer } from "../viewer";
-import root from "../root";
 import cache from "../cache";
+import { noopResolver } from "storage/DebugResolvers";
 
 const SlideDefinition = {
   storage: {
@@ -69,7 +69,7 @@ const TestModelDefinition = {
 const TestModel = DefineNode(TestModelDefinition);
 
 const Deck = DefineNode(DeckDefinition);
-const context = createContext(viewer(1 as any), root());
+const context = createContext(viewer(1 as any), noopResolver);
 
 test("creating a node", () => {
   const deck = Deck._createFromData(context, {
