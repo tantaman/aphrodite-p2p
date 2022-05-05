@@ -21,7 +21,13 @@ import { Engine } from "./storage/storageType";
 export function stringField(): string {
   throw new Error();
 }
-export function numberField(): number {
+export function intField(): number {
+  throw new Error();
+}
+export function floatField(): number {
+  throw new Error();
+}
+export function bigintField(): string {
   throw new Error();
 }
 export function replicatedStringField(): string {
@@ -51,8 +57,7 @@ export function mapField(): Map<any, any> {
 
 export type SchemaFieldType =
   | typeof stringField
-  | typeof replicatedStringField
-  | typeof numberField
+  | typeof intField
   | typeof booleanField
   | typeof arrayField
   | typeof idField

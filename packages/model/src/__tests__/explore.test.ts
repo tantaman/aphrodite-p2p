@@ -1,4 +1,4 @@
-import { DefineNode, idField, numberField, stringField } from "../Schema";
+import { DefineNode, idField, floatField, stringField } from "../Schema";
 import cache from "../cache";
 import context from "../context";
 import { viewer } from "../viewer";
@@ -6,6 +6,7 @@ import { id } from "../ID";
 import { commit } from "../mutator/commit";
 import PersistTailer from "../storage/PersistTailer";
 import { createResolver } from "./testDb";
+import { create as createTable } from "../storage/TablishCreator";
 
 // TODO: incorporate fast check?
 // https://github.com/dubzzz/fast-check
@@ -62,7 +63,7 @@ const SlideSchema = {
   },
   fields: () =>
     ({
-      order: numberField,
+      order: floatField,
       deckId: idField,
     } as const),
   edges: () =>
@@ -79,10 +80,20 @@ const Deck = DefineNode(DeckSchema);
 const Slide = DefineNode(SlideSchema);
 const Component = DefineNode(ComponentSchema);
 
-const resolver = createResolver();
-const ctx = context(viewer(id("me")), resolver);
-
+const ctx = context(viewer(id("me")), createResolver());
 const tailer = new PersistTailer(ctx, ctx.commitLog);
+
+beforeAll(async () => {
+  // TODO: can our test be smart enough to auto-create tables for all
+  // loaded schemas?
+  // I think so... `DefineNode` calls could auto-create tables when in a test
+  // environment...
+  await Promise.all([
+    createTable(ctx, DeckSchema),
+    createTable(ctx, SlideSchema),
+    createTable(ctx, ComponentSchema),
+  ]);
+});
 
 test("explore", async () => {
   const deckCs = Deck.create(ctx)

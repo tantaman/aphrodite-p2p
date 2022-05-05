@@ -1,7 +1,7 @@
 jest.useFakeTimers();
 import {
   DefineNode,
-  numberField,
+  intField,
   replicatedStringField,
   stringField,
 } from "../Schema";
@@ -62,7 +62,7 @@ const TestModelDefinition = {
   fields: () =>
     ({
       name: stringField,
-      age: numberField,
+      age: intField,
     } as const),
   edges: () => ({}),
 } as const;

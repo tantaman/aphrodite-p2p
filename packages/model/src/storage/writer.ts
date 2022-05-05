@@ -1,9 +1,9 @@
 import { nullthrows } from "@strut/utils";
-import { Changeset, DeleteChangeset } from "../mutator/Changeset";
+import { DeleteChangeset } from "../mutator/Changeset";
 import { Context } from "../context";
 import { NodeSchema, PersistConfig, RequiredNodeData } from "../Schema";
 import { Node } from "../Node";
-import sqliteWriter from "./sql/sqliteWriter";
+import sqlWriter from "./sql/sqlWriter";
 
 export default {
   // TODO: the common case is probably updating a single node
@@ -33,7 +33,7 @@ export default {
       );
       switch (engine) {
         case "sqlite":
-          writes.push(sqliteWriter.upsertGroup(context, group));
+          writes.push(sqlWriter.upsertGroup(context, group));
           break;
       }
     }

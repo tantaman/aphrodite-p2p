@@ -1,6 +1,6 @@
 import { nullthrows } from "@strut/utils";
 import { Context } from "../../context";
-import storageType from "../../storage/storageType";
+import storageType from "../storageType";
 import { Node } from "../../Node";
 import { RequiredNodeData, NodeSchema } from "../../Schema";
 import { DeleteChangeset } from "mutator/Changeset";
@@ -33,5 +33,10 @@ export default {
       .merge();
   },
 
-  deleteGroup(context: Context, delets: DeleteChangeset<NodeSchema>[]) {},
+  async deleteGroup(
+    context: Context,
+    delets: DeleteChangeset<NodeSchema>[]
+  ): Promise<void> {},
+
+  async createTables(): Promise<void> {},
 };
