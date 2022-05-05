@@ -26,16 +26,19 @@ export default {
       grouping.push(node);
     }
 
+    const writes: Promise<void>[] = [];
     for (const [key, group] of byEngineDbTable) {
       const engine = nullthrows(
         group[0]._definition.schema.storage.persisted?.engine
       );
       switch (engine) {
         case "sqlite":
-          sqliteWriter.upsertGroup(context, group);
+          writes.push(sqliteWriter.upsertGroup(context, group));
           break;
       }
     }
+
+    await Promise.all(writes);
   },
 
   async deleteBatch(

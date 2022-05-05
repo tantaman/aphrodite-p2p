@@ -9,7 +9,10 @@ export default {
   // Precondition: already grouped by db & table
   // TODO: Should we grab all by DB so we can do many inserts in 1 statement to the
   // same db?
-  upsertGroup(context: Context, nodes: Node<RequiredNodeData>[]) {
+  async upsertGroup(
+    context: Context,
+    nodes: Node<RequiredNodeData>[]
+  ): Promise<void> {
     const first = nodes[0];
     const persist = nullthrows(first._definition.schema.storage.persisted);
 
@@ -24,14 +27,10 @@ export default {
     // Ideally the above would return knex...
     // so we don't have to re-construct knex below just for query building...
 
-    console.log(
-      db(persist.tablish)
-        .insert(nodes.map((n) => (n as any)._data))
-        .onConflict("_id")
-        .merge()
-        .returning("*")
-        .toSQL()
-    );
+    await db(persist.tablish)
+      .insert(nodes.map((n) => (n as any)._data))
+      .onConflict("_id")
+      .merge();
   },
 
   deleteGroup(context: Context, delets: DeleteChangeset<NodeSchema>[]) {},
