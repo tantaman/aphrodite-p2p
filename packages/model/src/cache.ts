@@ -73,6 +73,9 @@ export default {
   get,
   set,
   remove,
+  clear() {
+    cache.clear();
+  },
   destroy() {
     cache.clear();
     clearInterval(intervalHandle);

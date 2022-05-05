@@ -1,4 +1,7 @@
 # TODO
+- more options on schema fields
+- tests for all the things 
+  - Property based tests?
 - Example data builder (based on schema field examples) for integration tests?
   - Or at least some way to issue the create table statements based on a schema
   so we may thereafter save our state.

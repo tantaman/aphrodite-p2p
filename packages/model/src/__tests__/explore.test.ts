@@ -114,20 +114,18 @@ test("explore", async () => {
     })
     .toChangeset();
 
-  const deck = commit(ctx, [deckCs, slideCs, componentCs]).nodes.get(
-    deckCs._id
-  );
+  const deck = commit(ctx, [deckCs, slideCs, componentCs], {
+    persistNow: true,
+  }).nodes.get(deckCs._id);
 
   await tailer.pendingWrites;
 
-  // TODO: hmm... if someone wants to immediately read and write
-  // the tailer debounce will present a problem.
-  // Incorporating the cache into the query layer queries is an option albeit
-  // difficult.
-  // Enabling `commit` to `writeImmediately` is another option.
-  // Or reading after the pendingWrites promise is filled..
-  //
-  // maybe `commit` should have some options to control debouncing or not.
+  // now test out the query layer...
+  const reloaded = await Deck.read(ctx, deckCs._id);
+
+  // and again with the cache nuked
+  cache.clear();
+  const reloaded2 = await Deck.read(ctx, deckCs._id);
 });
 
 afterAll(() => cache.destroy());

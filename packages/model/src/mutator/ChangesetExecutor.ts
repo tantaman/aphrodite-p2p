@@ -31,6 +31,7 @@ import { Node } from "../Node";
 import { Task } from "../NotifyQueue";
 import { NodeSchema, RequiredNodeData } from "../Schema";
 import ImmutableNodeMap, { MutableNodeMap } from "../NodeMap";
+import { CommitOptions } from "./commit";
 
 export type CombinedChangesets = Map<
   ID_of<Node<RequiredNodeData>>,
@@ -39,12 +40,14 @@ export type CombinedChangesets = Map<
 export type Transaction = {
   readonly changes: Map<ID_of<Node<RequiredNodeData>>, Changeset<NodeSchema>>;
   readonly nodes: ImmutableNodeMap;
+  readonly options: CommitOptions;
 };
 
 export class ChangesetExecutor {
   constructor(
     private context: Context,
-    private changesets: Changeset<NodeSchema>[]
+    private changesets: Changeset<NodeSchema>[],
+    private options: CommitOptions = {}
   ) {}
 
   // Ideally we return the transaction list...
@@ -90,6 +93,7 @@ export class ChangesetExecutor {
       {
         changes: changesets,
         nodes,
+        options: this.options,
       },
       notifications,
     ];

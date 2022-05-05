@@ -2,7 +2,6 @@ import { nullthrows } from "@strut/utils";
 import { Context } from "../context";
 import {
   NodeSchema,
-  SchemaFieldType,
   stringField,
   intField,
   bigintField,

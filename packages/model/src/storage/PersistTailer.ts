@@ -60,7 +60,13 @@ export default class PersistTailer {
 
       this.collectedCreatesOrUpdates.set(key, nullthrows(tx.nodes.get(key)));
     });
-    this.pendingWrites = this.write();
+    if (tx.options.persistNow) {
+      // TODO: think through and document how this interacts with batching and
+      // consolidating of many transactions
+      this.pendingWrites = this.writeImmediate();
+    } else {
+      this.pendingWrites = this.write();
+    }
   };
 
   // Debounced `onLogChange`
