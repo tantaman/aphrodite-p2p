@@ -1,6 +1,6 @@
 import { invariant } from "@strut/utils";
 import { maybeStorageType } from "../../storage/storageType.js";
-import { EdgeSchema, NodeSchema } from "../../Schema.js";
+import { EdgeSchema, NodeDefinition, NodeSchema } from "../../Schema.js";
 import { HopExpression } from "../Expression.js";
 import { HopQuery, Query } from "../Query.js";
 
@@ -13,7 +13,7 @@ export default class SQLHopQuery<TIn, TOut> extends HopQuery<TIn, TOut> {
   static create<TIn, TOut>(
     sourceQuery: Query<TIn>,
     source: NodeSchema,
-    edge: EdgeSchema<NodeSchema>
+    edge: EdgeSchema<NodeDefinition<NodeSchema>>
   ) {
     // based on source and dest spec, determine the appropriate hop expression
     return new SQLHopQuery(sourceQuery, createExpression(source, edge));
@@ -22,16 +22,18 @@ export default class SQLHopQuery<TIn, TOut> extends HopQuery<TIn, TOut> {
 
 function createExpression<TIn, TOut>(
   source: NodeSchema,
-  edge: EdgeSchema<NodeSchema>
+  edge: EdgeSchema<NodeDefinition<NodeSchema>>
 ): HopExpression<TIn, TOut> {
   if (maybeStorageType(source.storage.persisted?.engine) === "sql") {
     invariant(
-      maybeStorageType(edge.dest.storage.persisted?.engine) === "sql",
+      maybeStorageType(edge.dest.schema.storage.persisted?.engine) === "sql",
       "SQLHopQuery created for non-sql destination"
     );
 
     // If we're the same storage on the same DB, we can use a join expression
-    if (source.storage.persisted?.db === edge.dest.storage.persisted?.db) {
+    if (
+      source.storage.persisted?.db === edge.dest.schema.storage.persisted?.db
+    ) {
       return createJoinExpression(edge);
     }
   }
@@ -40,13 +42,13 @@ function createExpression<TIn, TOut>(
 }
 
 function createJoinExpression<TIn, TOut>(
-  edge: EdgeSchema<NodeSchema>
+  edge: EdgeSchema<NodeDefinition<NodeSchema>>
 ): HopExpression<TIn, TOut> {
   throw new Error("Join not yet supported");
 }
 
 function createChainedHopExpression<TIn, TOut>(
-  edge: EdgeSchema<NodeSchema>
+  edge: EdgeSchema<NodeDefinition<NodeSchema>>
 ): HopExpression<TIn, TOut> {
   throw new Error("In memory hop not yet supported");
 }

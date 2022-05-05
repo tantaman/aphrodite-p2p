@@ -18,6 +18,9 @@ export default class PersistTailer {
     Node<RequiredNodeData>
   > = new Map();
   private write: () => Promise<void[]>;
+
+  // TODO: technically shouldn't this be a list of promises
+  // as we could be replacing an unresolved promise..
   public pendingWrites: Promise<void[]> | null = null;
 
   constructor(

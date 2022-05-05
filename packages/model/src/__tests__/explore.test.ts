@@ -29,7 +29,7 @@ const DeckSchema = {
       slides: {
         type: "foreign",
         field: "deckId",
-        dest: SlideSchema,
+        dest: Slide,
       },
     } as const),
 } as const;
@@ -71,7 +71,7 @@ const SlideSchema = {
       components: {
         type: "foreign",
         field: "slideId",
-        dest: ComponentSchema,
+        dest: Component,
       },
     } as const),
 } as const;
@@ -116,7 +116,7 @@ test("explore", async () => {
 
   const deck = commit(ctx, [deckCs, slideCs, componentCs], {
     persistNow: true,
-  }).nodes.get(deckCs._id);
+  }).nodes.getx(deckCs._id);
 
   await tailer.pendingWrites;
 

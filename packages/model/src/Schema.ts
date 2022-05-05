@@ -15,8 +15,9 @@ import P, { Predicate } from "./query/Predicate";
 import { DerivedQuery, Query } from "./query/Query";
 import cache from "./cache";
 import QueryFactory from "./query/QueryFactory";
-import { modelLoad } from "./query/Expression";
+import { filter, modelLoad } from "./query/Expression";
 import { Engine } from "./storage/storageType";
+import { ModelFieldGetter } from "query/Field";
 
 export function stringField(): string {
   throw new Error();
@@ -65,15 +66,15 @@ export type SchemaFieldType =
   | typeof setField
   | typeof mapField;
 
-export type EdgeSchema<TDest extends NodeSchema> =
+export type EdgeSchema<TDest extends NodeDefinition<NodeSchema>> =
   | FieldEdge<TDest>
   | ForeignKeyEdge<TDest>;
-type FieldEdge<TDest extends NodeSchema> = {
+type FieldEdge<TDest extends NodeDefinition<NodeSchema>> = {
   type: "field";
   field: string; // Can we assert that this field exists on current schema?
   dest: TDest;
 };
-type ForeignKeyEdge<TDest extends NodeSchema> = {
+type ForeignKeyEdge<TDest extends NodeDefinition<NodeSchema>> = {
   type: "foreign";
   field: string; // Can we assert that this field exists on source?
   dest: TDest; // <-- schema.. once we have types worked out
@@ -100,7 +101,7 @@ export type NodeSchema = {
     [key: string]: SchemaFieldType;
   };
   edges: () => {
-    [key: string]: EdgeSchema<NodeSchema>;
+    [key: string]: EdgeSchema<NodeDefinition<NodeSchema>>;
   };
 };
 
@@ -111,7 +112,7 @@ type MakeQueryMethods<T extends NodeSchema> = {
   readonly [key in keyof ReturnType<T["edges"]> as Querify<
     key extends string ? key : never
   >]: () => QueryInstanceType<
-    ReturnType<T["edges"]>[key]["dest"],
+    ReturnType<T["edges"]>[key]["dest"]["schema"],
     NodeInstanceType<T>
   >;
 };
@@ -179,13 +180,30 @@ export function DefineNode<N extends NodeSchema>(node: N): NodeDefinition<N> {
   Object.entries(node.edges()).forEach(([key, value]) => {
     ConcreteNode.prototype[`query${upcaseAt(key, 0)}`] = function () {
       // get correct query type
+      // We need the definition of the node at the other end of the edge to do this.
+      // Because we need to create the query for the other node type.
+      // So we need a query factory on the definition.
     };
   });
 
   // Need to define query methods to return new queries
 
   // Create the correct source query
-  class ConcreteQuery extends DerivedQuery<NodeInstanceType<N>> {}
+  class ConcreteQuery extends DerivedQuery<NodeInstanceType<N>> {
+    whereId(p: Predicate<NodeInternalDataType<N>["_id"]>) {
+      return new ConcreteQuery(
+        this,
+        filter(
+          new ModelFieldGetter<
+            "_id",
+            NodeInternalDataType<N>,
+            NodeInstanceType<N>
+          >("_id"),
+          p
+        )
+      );
+    }
+  }
 
   Object.entries(node.edges()).forEach(([key, value]) => {
     ConcreteQuery.prototype[`query${upcaseAt(key, 0)}`] = function () {

@@ -45,7 +45,7 @@ const DeckDefinition = {
       slides: {
         type: "foreign",
         field: "deckId",
-        dest: SlideDefinition,
+        dest: Slide,
       },
     } as const),
 } as const;
@@ -69,6 +69,7 @@ const TestModelDefinition = {
 const TestModel = DefineNode(TestModelDefinition);
 
 const Deck = DefineNode(DeckDefinition);
+const Slide = DefineNode(SlideDefinition);
 const context = createContext(viewer(1 as any), noopResolver);
 
 test("creating a node", () => {

@@ -1,3 +1,4 @@
+import { nullthrows } from "@strut/utils";
 import { ID_of } from "./ID";
 import { Node } from "./Node";
 import { RequiredNodeData } from "./Schema";
@@ -15,6 +16,10 @@ export default class ImmutableNodeMap {
     }
 
     return ret as T;
+  }
+
+  getx<T extends Node<RequiredNodeData>>(id: ID_of<T>): T {
+    return nullthrows(this.map.get(id)) as T;
   }
 }
 
