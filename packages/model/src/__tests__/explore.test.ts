@@ -119,6 +119,15 @@ test("explore", async () => {
   );
 
   await tailer.pendingWrites;
+
+  // TODO: hmm... if someone wants to immediately read and write
+  // the tailer debounce will present a problem.
+  // Incorporating the cache into the query layer queries is an option albeit
+  // difficult.
+  // Enabling `commit` to `writeImmediately` is another option.
+  // Or reading after the pendingWrites promise is filled..
+  //
+  // maybe `commit` should have some options to control debouncing or not.
 });
 
 afterAll(() => cache.destroy());
