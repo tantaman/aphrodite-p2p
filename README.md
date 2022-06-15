@@ -1,3 +1,7 @@
+This project has been merged back into Aphrodite proper -- https://github.com/tantaman/aphrodite
+
+----
+
 # Aphrodite P2P
 
 And exploration of [Aphrodite](https://github.com/tantaman/aphrodite) as:
